@@ -2,10 +2,19 @@ package com.example.tiendaretailsur.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+//Tema claro
+val FondoApp = Color(0xFFF2EBDD)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val FondoAppClaro = Color(0xFF78947F)
+val TextoClaro = Color(0xFFFFFFFF)
+val CardClara = Color(0xFF3F5244)
+
+
+//Tema oscuro
+val FondoAppOscuro = Color(0xFF102F27)
+val TextoOscuro = Color(0xFFB08A4F)
+val CardOscura = Color(0xFF23542C)
+
+val GrisDeshabilitada = Color(0xFFBDBAC7)
+val Exito = Color(0xFF44A63B)
+val ExitoFondo = Color(0xFF2B5627)

@@ -1,3 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TiendaRetailSur</string>
+    //Pantalla creacion cuenta
+    <string name="creacion_cuenta">Crear cuenta</string>
+    <string name="titulo_registro">Registrarse</string>
+    <string name="subtitulo_registro">Completa con tus datos</string>
+    <string name="seccion_datos">Datos personales</string>
+    <string name="campo_nombre">Nombres</string>
+    <string name="campo_apellido">Apellidos</string>
+    <string name="campo_correo">Correo electrónico</string>
+    <string name="campo_contrasena">Contraseña</string>
+    <string name="campo_nombre_usuario">Nombre de usuario</string>
+    <string name="opcion_terminos">Acepto los términos y condiciones</string>
+    <string name="btn_registro">Registrarme</string>
+    <string name="btn_limpiar">Limpiar</string>
+    <string name="registro_exitoso">Registro exitoso. Bienvenido/a %1$s</string>
+
+    //Pantalla perfil
+    <string name="titulo_cuenta">Mi cuenta</string>
+    <string name="subtitulo_acceso">Selecciona el tipo de acceso</string>
+    <string name="selector_acceso">Acceso</string>
+
+    //Pantalla inicio de sesion
+    <string name="inicio_sesion">Iniciar sesion</string>
+    <string name="login_usuario">Ingresa nombre de usuario</string>
+    <string name="login_contrasena">Ingresa contraseña</string>
+    <string name="btn_login">Acceder</string>
+
 </resources>

@@ -27,4 +27,7 @@
     <string name="login_contrasena">Ingresa contraseña</string>
     <string name="btn_login">Acceder</string>
 
+    <string name="cd_mostrar_contrasena">Mostrar contraseña</string>
+    <string name="cd_ocultar_contrasena">Ocultar contraseña</string>
+
 </resources>

@@ -9,6 +9,12 @@ val FondoAppClaro = Color(0xFF78947F)
 val TextoClaro = Color(0xFFFFFFFF)
 val CardClara = Color(0xFF3F5244)
 
+// Colores
+
+val Primario = Color(0xFF569572)
+val Blanco = Color(0xFFFFFFFF)
+
+
 
 //Tema oscuro
 val FondoAppOscuro = Color(0xFF102F27)

@@ -18,9 +18,6 @@ class FormularioRegistroViewModel : ViewModel(){
     fun onNombreCambia(valor : String){
         _uiState.update { it.copy(nombre = valor, errorNombre = null, registroExitoso = false) }
     }
-    fun onApellidoCambia(valor : String){
-        _uiState.update{ it.copy(apellido = valor, errorApellido = null, registroExitoso = false)}
-    }
     fun onCorreoCambia(valor : String){
         _uiState.update{ it.copy(correo = valor, errorFormatoCorreo = null, registroExitoso = false)}
     }
@@ -45,7 +42,6 @@ class FormularioRegistroViewModel : ViewModel(){
 
         val errorRut = if (!validarFormatoRut(estado.rut)) "El rut no tiene el formato solicitado" else null
         val errorNombre = if(estado.nombre.isBlank()) "El nombre es obligatorio" else null
-        val errorApellido = if(estado.apellido.isBlank()) "El apellido es obligatorio" else null
 
         val errorCorreo = if(!estado.correo.contains("@") || !estado.correo.contains("."))
             "Ingrese un correo válido" else null
@@ -55,12 +51,10 @@ class FormularioRegistroViewModel : ViewModel(){
         val errorTerminos = if(!estado.aceptarTerminos) "Debes aceptar los términos" else null
 
         val siHayErrores = listOf(errorRut, errorNombre,
-            errorApellido, errorCorreo,
-            errorTelefono, errorContrasena, errorTerminos).any { it != null }
+            errorCorreo, errorTelefono, errorContrasena, errorTerminos).any { it != null }
         _uiState.update { it.copy(
             errorFormatoRut = errorRut,
             errorNombre = errorNombre,
-            errorApellido = errorApellido,
             errorFormatoCorreo = errorCorreo,
             errorTelefono = errorTelefono,
             errorContrasena = errorContrasena,

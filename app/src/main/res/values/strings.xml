@@ -3,15 +3,16 @@
     <string name="app_name">TiendaRetailSur</string>
     //Pantalla creacion cuenta
     <string name="creacion_cuenta">Crear cuenta</string>
-    <string name="titulo_registro">Registrarse</string>
-    <string name="subtitulo_registro">Completa con tus datos</string>
+    <string name="titulo_registro2">REGISTRATE</string>
+    <string name="titulo_registro">Crea tu cuenta</string>
+    <string name="subtitulo_registro">Todo listo para llevar el control de tu espacio desde el primer acceso.</string>
     <string name="seccion_datos">Datos personales</string>
-    <string name="campo_nombre">Nombres</string>
-    <string name="campo_apellido">Apellidos</string>
+    <string name="campo_rut">"RUT"</string>
+    <string name="campo_nombre">Nombre completo</string>
     <string name="campo_correo">Correo electrónico</string>
+    <string name="campo_telefono">Telefóno</string>
     <string name="campo_contrasena">Contraseña</string>
-    <string name="campo_nombre_usuario">Nombre de usuario</string>
-    <string name="opcion_terminos">Acepto los términos y condiciones</string>
+    <string name="acepta_terminos">Acepto los Términos de uso y Condiciones</string>
     <string name="btn_registro">Registrarme</string>
     <string name="btn_limpiar">Limpiar</string>
     <string name="registro_exitoso">Registro exitoso. Bienvenido/a %1$s</string>

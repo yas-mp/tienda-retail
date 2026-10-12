@@ -7,6 +7,7 @@ object Dimens {
         //espaciados (margin / padding / gap)
         val margenPantalla = 16.dp
         val espacioEntreTarjetas = 12.dp
+        val espacioPantalla = 30.dp
         val espacioInterno = 8.dp
         val espacioPequeno = 4.dp
 

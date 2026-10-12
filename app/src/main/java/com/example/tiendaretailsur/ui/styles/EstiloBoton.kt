@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.tiendaretailsur.ui.theme.Blanco
+import com.example.tiendaretailsur.ui.theme.CardClara
 import com.example.tiendaretailsur.ui.theme.Dimens
 import com.example.tiendaretailsur.ui.theme.GrisDeshabilitada
 import com.example.tiendaretailsur.ui.theme.Primario
@@ -22,7 +23,7 @@ object EstiloBoton {
 
     @Composable
     fun coloresPrincipal() : ButtonColors = ButtonDefaults.buttonColors(
-        containerColor = Primario,
+        containerColor = CardClara,
         contentColor = Blanco,
         disabledContainerColor = GrisDeshabilitada,
         disabledContentColor = Blanco
@@ -31,7 +32,7 @@ object EstiloBoton {
     @Composable
     fun bordeSecundario() : BorderStroke =
         BorderStroke(Dimens.bordeBoton,
-            MaterialTheme.colorScheme.secondary )
+            Blanco )
 
     @Composable
     fun coloresSecundario() : ButtonColors = ButtonDefaults.outlinedButtonColors(

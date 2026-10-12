@@ -27,7 +27,7 @@ private val EsquemaOscuro = darkColorScheme(
 private val EsquemaClaro = lightColorScheme(
     primary = Primario,
     onPrimary = Blanco,
-    background = FondoApp,
+    background = FondoAppClaro,
     onBackground = CardClara,
     surface = CardClara,
     onSurface = TextoClaro,
@@ -41,7 +41,7 @@ private val Formas = Shapes(
 @Composable
 fun MiRegistroTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ){
     val colorScheme = when {

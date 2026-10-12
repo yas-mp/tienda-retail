@@ -3,7 +3,6 @@ package com.example.tiendaretailsur.model
 data class FormularioRegistroUiState(
     val rut: String = "",
     val nombre: String = "",
-    val apellido: String = "",
     val correo: String = "",
     val telefono: String = "",
     val contrasena: String = "",

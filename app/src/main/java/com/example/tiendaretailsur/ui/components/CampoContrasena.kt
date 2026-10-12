@@ -1,5 +1,7 @@
 package com.example.tiendaretailsur.ui.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.example.tiendaretailsur.R
 import com.example.tiendaretailsur.ui.styles.EstiloCampo
 import com.example.tiendaretailsur.ui.theme.Dimens
+import com.example.tiendaretailsur.ui.theme.FondoAppClaro
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 
 @Composable
@@ -71,13 +74,18 @@ fun CampoContrasena(
 @Composable
 private fun CampoContrasenaPreview(){
     MiRegistroTheme{
-        CampoContrasena(
-            valor = "secreto",
-            onValorCambia = {},
-            etiqueta = "Contrasena",
-            visible = false,
-            onAlternarContrasenaVisible = {},
-            modifier =  Modifier.padding(16.dp)
-        )
+        Box(
+            modifier = Modifier
+                .background(FondoAppClaro)
+                .padding(16.dp)
+        ){
+            CampoContrasena(
+                valor = "secreto",
+                onValorCambia = {},
+                etiqueta = "Contrasena",
+                visible = false,
+                onAlternarContrasenaVisible = {}
+            )
+        }
     }
 }

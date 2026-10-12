@@ -21,6 +21,7 @@ val FondoAppOscuro = Color(0xFF102F27)
 val TextoOscuro = Color(0xFFB08A4F)
 val CardOscura = Color(0xFF23542C)
 
-val GrisDeshabilitada = Color(0xFFBDBAC7)
+val GrisDeshabilitada = Color(0xFF686363)
+val Error = Color(0xFF7B1111)
 val Exito = Color(0xFF44A63B)
 val ExitoFondo = Color(0xFF2B5627)

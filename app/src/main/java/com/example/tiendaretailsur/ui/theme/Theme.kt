@@ -11,6 +11,46 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
-private val EsquemaOscuro = darkColorScheme(
-
+private val EsquemaClaro = lightColorScheme(
+    background = FondoAppClaro,
+    onBackground = TextoClaro,
+    surface = CardClara,
+    onSurface = TextoClaro,
+    surfaceVariant = CardClara,
+    onSurfaceVariant = TextoClaro,
+    primary = FondoApp,
+    onPrimary = CardClara,
+    secondary = FondoApp,
+    onSecondary = CardClara,
+    primaryContainer = CardClara,
+    onPrimaryContainer = TextoClaro
 )
+
+private val EsquemaOscuro = darkColorScheme(
+    background = FondoAppOscuro,
+    onBackground = TextoOscuro,
+    surface = CardOscura,
+    onSurface = TextoOscuro,
+    surfaceVariant = CardOscura,
+    onSurfaceVariant = TextoOscuro,
+    primary = TextoOscuro,
+    onPrimary = FondoAppOscuro,
+    secondary = CardOscura,
+    onSecondary = TextoOscuro,
+    primaryContainer = CardOscura,
+    onPrimaryContainer = TextoOscuro
+)
+
+@Composable
+fun RinconSur(
+    darkTheme: Boolean,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = if (darkTheme) EsquemaOscuro else EsquemaClaro
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Tipografia,
+        content = content
+    )
+}

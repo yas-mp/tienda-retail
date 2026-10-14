@@ -19,6 +19,5 @@ data class FormularioRegistroUiState(
     val errorTerminos: String? = null,
 
     val registroExitoso: Boolean = false
-){
+)
 
-}

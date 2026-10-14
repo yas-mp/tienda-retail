@@ -37,7 +37,7 @@
     <string name="login_no_cuenta">¿No tienes una cuenta? Crea una cuenta</string>
     <string name="login_footer">Tus datos seguros. Tu aforo bajo control.</string>
 
-    <!-- <string name="cd_mostrar_contrasena">Mostrar contraseña</string>
-    <string name="cd_ocultar_contrasena">Ocultar contraseña</string> -->
+    <string name="cd_mostrar_contrasena">Mostrar contraseña</string>
+    <string name="cd_ocultar_contrasena">Ocultar contraseña</string>
 
 </resources>

@@ -23,12 +23,21 @@
     <string name="selector_acceso">Acceso</string>
 
     //Pantalla inicio de sesion
-    <string name="inicio_sesion">Iniciar sesion</string>
-    <string name="login_usuario">Ingresa nombre de usuario</string>
-    <string name="login_contrasena">Ingresa contraseña</string>
-    <string name="btn_login">Acceder</string>
+    <string name="login_titulo_principal">Aforo</string>
+    <string name="login_tarjeta_etiqueta">CADA ACCESO CUENTA</string>
+    <string name="login_tarjeta_texto">Un espacio seguro empieza contigo.</string>
+    <string name="login_saludo">Qué bueno verte de nuevo</string>
+    <string name="login_descripcion">Inicia sesión para gestionar los accesos y el aforo de tu espacio.</string>
+    <string name="login_label_correo">Correo electrónico</string>
+    <string name="login_hint_correo">nombre@empresa.com</string>
+    <string name="login_label_contrasena">Contraseña</string>
+    <string name="login_hint_contrasena">Introduce tu contraseña</string>
+    <string name="login_olvide_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="login_btn_ingresar">Iniciar sesión</string>
+    <string name="login_no_cuenta">¿No tienes una cuenta? Crea una cuenta</string>
+    <string name="login_footer">Tus datos seguros. Tu aforo bajo control.</string>
 
-    <string name="cd_mostrar_contrasena">Mostrar contraseña</string>
-    <string name="cd_ocultar_contrasena">Ocultar contraseña</string>
+    <!-- <string name="cd_mostrar_contrasena">Mostrar contraseña</string>
+    <string name="cd_ocultar_contrasena">Ocultar contraseña</string> -->
 
 </resources>

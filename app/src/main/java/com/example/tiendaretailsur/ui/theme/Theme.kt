@@ -16,46 +16,50 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 private val EsquemaOscuro = darkColorScheme(
-    primary = Primario,
-    onPrimary = Blanco,
+    primary = CardOscura,
+    onPrimary = TextoClaro,
     background = FondoAppOscuro,
     onBackground = TextoOscuro,
     surface = CardOscura,
-    onSurface = TextoOscuro,
-    surfaceVariant = CardOscura
+    onSurface = TextoClaro,
+    surfaceVariant = CardOscura,
+    onSurfaceVariant = TextoOscuro
 )
+
 private val EsquemaClaro = lightColorScheme(
-    primary = Primario,
-    onPrimary = Blanco,
+    primary = CardClara,
+    onPrimary = TextoClaro,
     background = FondoAppClaro,
-    onBackground = CardClara,
+    onBackground = TextoClaro,
     surface = CardClara,
     onSurface = TextoClaro,
-    surfaceVariant = FondoAppClaro
+    surfaceVariant = FondoApp,
+    onSurfaceVariant = CardClara
 )
+
 private val Formas = Shapes(
     small = RoundedCornerShape(8.dp),
     medium = RoundedCornerShape(12.dp),
     large = RoundedCornerShape(20.dp)
 )
+
 @Composable
 fun MiRegistroTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
-){
+) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> EsquemaOscuro
         else -> EsquemaClaro
     }
 
     MaterialTheme(
-        colorScheme,
+        colorScheme = colorScheme,
         typography = Tipografia,
         shapes = Formas,
         content = content

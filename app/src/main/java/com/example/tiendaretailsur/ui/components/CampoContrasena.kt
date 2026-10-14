@@ -12,6 +12,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,10 +40,10 @@ fun CampoContrasena(
         value = valor,
         onValueChange = onValorCambia,
         modifier = modifier.fillMaxWidth(),
-        label = { Text(etiqueta)},
+        placeholder = {Text(text = etiqueta, color = Color.White.copy(0.5f))},
         leadingIcon = {
             Icon(
-                painter = painterResource(R.drawable.ic_candado),
+                painter = painterResource(R.drawable.cerrar),
                 contentDescription = null,
                 modifier = Modifier.size(Dimens.tamanoIcono)
             )
@@ -50,6 +51,7 @@ fun CampoContrasena(
         trailingIcon = {
             IconButton(onClick = onAlternarContrasenaVisible) {
                 Icon(
+                    tint = Color.White,
                     painter = painterResource(
                         if(visible) R.drawable.ic_ojo_tachado else R.drawable.ic_ojo
                     ),

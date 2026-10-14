@@ -47,7 +47,8 @@ import com.example.tiendaretailsur.viewmodel.FormularioRegistroViewModel
 
 @Composable
 fun FormularioRegistroScreen(
-    viewModel: FormularioRegistroViewModel = viewModel()
+    viewModel: FormularioRegistroViewModel = viewModel(),
+    onIrALoginClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -61,7 +62,8 @@ fun FormularioRegistroScreen(
         onAlternarContrasenaVisible = viewModel::onAlternarContrasenaVisible,
         onTerminosCambia = viewModel::onTerminosCambia,
         onLimpiarFormulario = viewModel::onLimpiarFormulario,
-        onRegistrar = viewModel::onRegistrar
+        onRegistrar = viewModel::onRegistrar,
+        onIrALoginClick = onIrALoginClick
     )
 }
 
@@ -77,7 +79,8 @@ fun FormularioRegistroContent(
     onAlternarContrasenaVisible: () -> Unit,
     onTerminosCambia: (Boolean) -> Unit,
     onLimpiarFormulario: () -> Unit,
-    onRegistrar: () -> Unit
+    onRegistrar: () -> Unit,
+    onIrALoginClick: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -107,8 +110,11 @@ fun FormularioRegistroContent(
             CampoTextoRut(
                 valor = uiState.rut,
                 onValorCambia = onRutCambia,
-                etiqueta = stringResource(R.string.campo_rut)
+                etiqueta = stringResource(R.string.campo_rut),
+                icono = R.drawable.ic_rut,
+                error = uiState.errorFormatoRut
             )
+
             CampoTexto(
                 valor = uiState.nombre,
                 onValorCambia = onNombreCambia,
@@ -116,13 +122,16 @@ fun FormularioRegistroContent(
                 icono = R.drawable.ic_persona,
                 error = uiState.errorNombre
             )
+
             CampoTexto(
                 valor = uiState.telefono,
                 onValorCambia = onTelefonoCambia,
                 etiqueta = stringResource(R.string.campo_telefono),
+                icono = R.drawable.ic_telefono,
                 error = uiState.errorTelefono,
                 tipoTeclado = KeyboardType.Phone
             )
+
             CampoTexto(
                 valor = uiState.correo,
                 onValorCambia = onCorreoCambia,
@@ -131,6 +140,7 @@ fun FormularioRegistroContent(
                 error = uiState.errorFormatoCorreo,
                 tipoTeclado = KeyboardType.Email
             )
+
             CampoContrasena(
                 valor = uiState.contrasena,
                 onValorCambia = onContrasenaCambia,
@@ -164,12 +174,16 @@ fun FormularioRegistroContent(
                     modifier = Modifier.weight(1f)
                 )
             }
+
             Text(
                 text = "¿Ya tienes una cuenta? Inicia sesión",
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().clickable{}.padding(vertical = Dimens.espacioPequeno)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onIrALoginClick() }
+                    .padding(vertical = Dimens.espacioPequeno)
             )
 
             if (uiState.registroExitoso) {
@@ -180,6 +194,7 @@ fun FormularioRegistroContent(
         }
     }
 }
+
 @Composable
 private fun MensajeExitoso(nombre: String) {
     Card(

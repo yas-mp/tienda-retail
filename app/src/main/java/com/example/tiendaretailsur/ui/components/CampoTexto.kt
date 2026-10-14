@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.tiendaretailsur.R
 import com.example.tiendaretailsur.ui.styles.EstiloCampo
 import com.example.tiendaretailsur.ui.theme.Dimens
 import com.example.tiendaretailsur.ui.theme.FondoAppClaro
@@ -24,30 +25,30 @@ import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 
 @Composable
 fun CampoTexto(
-    valor : String,
+    valor: String,
     onValorCambia: (String) -> Unit,
     etiqueta: String,
     @DrawableRes icono: Int? = null,
     modifier: Modifier = Modifier,
-    error : String? = null,
+    error: String? = null,
     tipoTeclado: KeyboardType = KeyboardType.Text
-){
+) {
     OutlinedTextField(
         value = valor,
         onValueChange = onValorCambia,
         modifier = modifier.fillMaxWidth(),
         label = { Text(etiqueta) },
-        leadingIcon = {
-            if (icono!=null) {
+        leadingIcon = icono?.let { iconoRes ->
+            {
                 Icon(
-                    painter = painterResource(icono),
-                    contentDescription = null,
+                    painter = painterResource(id = iconoRes),
+                    contentDescription = etiqueta,
                     modifier = Modifier.size(Dimens.tamanoIcono)
                 )
             }
         },
         isError = error != null,
-        supportingText = { if (error!= null) Text(error)},
+        supportingText = { if (error != null) Text(error) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = tipoTeclado,
@@ -60,19 +61,30 @@ fun CampoTexto(
 
 @Composable
 fun CampoTextoRut(
-    valor : String,
+    valor: String,
     onValorCambia: (String) -> Unit,
     etiqueta: String,
+    @DrawableRes icono: Int? = null,
     modifier: Modifier = Modifier,
-    error : String? = null,
+    error: String? = null,
     tipoTeclado: KeyboardType = KeyboardType.Text
-){
+) {
     OutlinedTextField(
         value = valor,
         onValueChange = onValorCambia,
         modifier = modifier.fillMaxWidth(),
+        label = { Text(etiqueta) },
+        leadingIcon = icono?.let { iconoRes ->
+            {
+                Icon(
+                    painter = painterResource(id = iconoRes),
+                    contentDescription = etiqueta,
+                    modifier = Modifier.size(Dimens.tamanoIcono)
+                )
+            }
+        },
         isError = error != null,
-        supportingText = { if (error!= null) Text(error)},
+        supportingText = { if (error != null) Text(error) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = tipoTeclado,
@@ -81,12 +93,11 @@ fun CampoTextoRut(
         shape = EstiloCampo.forma,
         colors = EstiloCampo.colores()
     )
-
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun CampoTextoPreview(){
+private fun CampoTextoPreview() {
     MiRegistroTheme {
         Box(
             modifier = Modifier
@@ -94,9 +105,10 @@ private fun CampoTextoPreview(){
                 .padding(16.dp)
         ) {
             CampoTextoRut(
-                valor = "18.866333-8",
+                valor = "18.866.333-8",
                 onValorCambia = {},
-                etiqueta = "Rut"
+                etiqueta = "RUT",
+                icono = R.drawable.ic_launcher_foreground
             )
         }
     }

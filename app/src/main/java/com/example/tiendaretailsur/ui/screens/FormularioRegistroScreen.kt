@@ -60,7 +60,6 @@ fun FormularioRegistroScreen(
         onContrasenaCambia = viewModel::onContrasenaCambia,
         onAlternarContrasenaVisible = viewModel::onAlternarContrasenaVisible,
         onTerminosCambia = viewModel::onTerminosCambia,
-        onLimpiarFormulario = viewModel::onLimpiarFormulario,
         onRegistrar = viewModel::onRegistrar
     )
 }
@@ -76,7 +75,6 @@ fun FormularioRegistroContent(
     onContrasenaCambia: (String) -> Unit,
     onAlternarContrasenaVisible: () -> Unit,
     onTerminosCambia: (Boolean) -> Unit,
-    onLimpiarFormulario: () -> Unit,
     onRegistrar: () -> Unit
 ) {
     Scaffold(
@@ -99,7 +97,7 @@ fun FormularioRegistroContent(
                 onClick = {},
                 modifier = Modifier.padding(bottom = Dimens.espacioPequeno)
                     .size(44.dp).background(
-                        color = MaterialTheme.colorScheme.surfaceVariant
+                        color = MaterialTheme.colorScheme.background
                     )
             ) {
                 Icon(

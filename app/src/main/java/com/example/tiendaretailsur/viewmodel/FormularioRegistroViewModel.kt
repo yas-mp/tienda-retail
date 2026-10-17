@@ -2,6 +2,8 @@ package com.example.tiendaretailsur.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.tiendaretailsur.model.FormularioRegistroUiState
+import com.example.tiendaretailsur.model.RolUsuario
+import com.example.tiendaretailsur.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,15 +49,15 @@ class FormularioRegistroViewModel : ViewModel() {
         _uiState.update { it.copy(contrasenaVisible = !it.contrasenaVisible) }
     }
 
+    fun onSeleccionRol(rolSeleccionado : RolUsuario){
+        _uiState.update { it.copy(rolSeleccionado = rolSeleccionado) }
+    }
+
     fun onTerminosCambia(valor: Boolean) {
         _uiState.update { it.copy(aceptarTerminos = valor, errorTerminos = null) }
     }
 
-    fun onLimpiarFormulario() {
-        _uiState.value = FormularioRegistroUiState()
-    }
-
-    fun onRegistrar() {
+    fun onRegistrar() : Usuario? {
         val estado = _uiState.value
 
         val errorRut = if (!validarFormatoRut(estado.rut)) "El RUT no tiene un formato válido" else null
@@ -89,6 +91,7 @@ class FormularioRegistroViewModel : ViewModel() {
                 registroExitoso = !siHayErrores
             )
         }
+        return if (siHayErrores) null else Usuario(estado.rut, estado.nombre, estado.correo)
     }
 
     fun validarFormatoRut(rut: String): Boolean {

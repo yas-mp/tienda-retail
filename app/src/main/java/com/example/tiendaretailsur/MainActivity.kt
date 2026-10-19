@@ -1,6 +1,6 @@
 package com.example.tiendaretailsur
 
-import MenuPrincipalScreen
+import com.example.tiendaretailsur.ui.screens.MenuPrincipalScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent

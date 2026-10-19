@@ -1,3 +1,5 @@
+package com.example.tiendaretailsur.ui.screens
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,7 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Badge
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -33,14 +35,13 @@ import com.example.tiendaretailsur.viewmodel.MenuPrincipalViewModel
 
 @Composable
 fun MenuPrincipalScreen(
-    modifier: Modifier = Modifier,
     isAdmin: Boolean = true,
+    modifier: Modifier = Modifier,
     viewModel: MenuPrincipalViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val ultimoResumen = uiState.ultimoResumen
     var accesoSeleccionado by remember { mutableStateOf<String?>(null) }
-
 
     if (isAdmin) {
         //  VISTA DE ADMINISTRADOR
@@ -54,7 +55,7 @@ fun MenuPrincipalScreen(
                 UserHeader(userName = "Andrea", title = "Menú Principal", initials = "AM")
             }
 
-            // BaNER: total de ingresos de las 4 puertas
+            // Baner: Total de ingresos de las 4 puertas y porcentajes
             item {
                 Card(
                     colors = CardDefaults.cardColors(
@@ -189,90 +190,86 @@ fun MenuPrincipalScreen(
         }
     } else {
         // VISTA DE USUARIO
-        LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                UserHeader(userName = "Colaborador", title = "Selección de Acceso", initials = "US")
-            }
+        if (accesoSeleccionado == null) {
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    UserHeader(userName = "Usuario", title = "Selección de Acceso", initials = "US")
+                }
 
-            item {
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                item {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = "Puertas de Acceso Disponibles",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Selecciona la puerta de acceso donde te encuentras ubicado.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-                        if (accesoSeleccionado != null) {
-                            Spacer(modifier = Modifier.height(4.dp))
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
                             Text(
-                                text = "Acceso activo: Puerta $accesoSeleccionado",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
+                                text = "Puertas de Acceso Disponibles",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Selecciona la puerta de acceso donde te encuentras ubicado para iniciar el registro.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                             )
                         }
                     }
                 }
-            }
 
-            items(TiendaRepository.listaAccesos) { acceso ->
-                val esSeleccionado = accesoSeleccionado == acceso.id
-
-                Card(
-                    onClick = { accesoSeleccionado = acceso.id },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (esSeleccionado) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-                        contentColor = if (esSeleccionado) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                items(TiendaRepository.listaAccesos) { acceso ->
+                    Card(
+                        onClick = { accesoSeleccionado = acceso.id },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        )
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Puerta ${acceso.id} - ${acceso.nombre}",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = acceso.descripcion,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                            )
-                        }
-                        if (esSeleccionado) {
-                            Badge(containerColor = MaterialTheme.colorScheme.primary) {
-                                Text("Seleccionado", color = MaterialTheme.colorScheme.onPrimary)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Puerta ${acceso.id} - ${acceso.nombre}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = acceso.descripcion,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                )
+                            }
+                            Button(onClick = { accesoSeleccionado = acceso.id }) {
+                                Text("Iniciar Conteo")
                             }
                         }
                     }
                 }
             }
+        } else {
+            // Al seleccionar la puerta se va al formulario
+            FormularioConteoScreen(
+                puertaInicial = accesoSeleccionado!!,
+                modifier = modifier,
+                onVolver = { accesoSeleccionado = null }
+            )
         }
     }
 }

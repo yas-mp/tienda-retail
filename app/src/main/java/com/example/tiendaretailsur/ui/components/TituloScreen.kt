@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.tiendaretailsur.ui.theme.Blanco
 import com.example.tiendaretailsur.ui.theme.FondoAppClaro
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 
@@ -32,7 +31,7 @@ fun TituloScreen(
         Text(
             text = titulo,
             style = MaterialTheme.typography.headlineMedium,
-            color = Blanco,
+            color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold
         )
         if(subtitulo!=null){
@@ -40,7 +39,7 @@ fun TituloScreen(
             Text(
                 text = subtitulo,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Blanco
+                color = MaterialTheme.colorScheme.onSurfaceVariant
 
             )
         }

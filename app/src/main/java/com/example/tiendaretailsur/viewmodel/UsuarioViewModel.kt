@@ -1,6 +1,7 @@
 package com.example.tiendaretailsur.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.example.tiendaretailsur.model.HashUtils
 import com.example.tiendaretailsur.model.Usuario
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -8,26 +9,40 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class UsuarioViewModel : ViewModel() {
+
     private val _usuarios = MutableStateFlow(
-        listOf(Usuario("21.123.111-8","Jasmin Valencia","jasmin@gmail.com"))
+        listOf(
+            Usuario(
+                codigo = "C-00",
+                nombreCompleto = "Jasmin Valencia",
+                rut = "21.123.111-8",
+                cargo = "Subgerente comercial",
+                perfil = "P-02",
+                correo = "jasmin@gmail.com",
+                telefono = "912345678",
+                passwordHash = HashUtils.generarHash("Rincon2026")
+            )
+        )
     )
-    val usuarios : StateFlow<List<Usuario>> = _usuarios.asStateFlow()
+    val usuarios: StateFlow<List<Usuario>> = _usuarios.asStateFlow()
 
     private val _usuarioActual = MutableStateFlow<Usuario?>(null)
-    val usuarioActual : StateFlow<Usuario?> = _usuarioActual.asStateFlow()
+    val usuarioActual: StateFlow<Usuario?> = _usuarioActual.asStateFlow()
 
-    fun registrarUsuario(usuario : Usuario){
+    fun registrarUsuario(usuario: Usuario) {
         _usuarios.update { lista -> lista + usuario }
         _usuarioActual.value = usuario
     }
 
-    fun actualizarUsuario(indice : Int, editado : Usuario){
+    fun actualizarUsuario(indice: Int, editado: Usuario) {
         val anterior = _usuarios.value[indice]
-        _usuarios.update { lista -> lista.mapIndexed { i, u -> if(i == indice) editado else u } }
+        _usuarios.update { lista ->
+            lista.mapIndexed { i, u -> if (i == indice) editado else u }
+        }
         if (_usuarioActual.value == anterior) _usuarioActual.value = editado
     }
 
-    fun cerrarSesion(){
+    fun cerrarSesion() {
         _usuarioActual.value = null
     }
 }

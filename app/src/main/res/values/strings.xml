@@ -4,7 +4,7 @@
     //Pantalla creacion cuenta
     <string name="creacion_cuenta">Crear cuenta</string>
     <string name="titulo_registro2">REGISTRATE</string>
-    <string name="titulo_registro">Crea tu cuenta</string>
+    <string name="titulo_registro">Crea un usuario</string>
     <string name="subtitulo_registro">Todo listo para llevar el control de tu espacio desde el primer acceso.</string>
     <string name="seccion_datos">Datos personales</string>
     <string name="campo_rut">RUT</string>
@@ -13,7 +13,7 @@
     <string name="campo_telefono">Telefóno</string>
     <string name="campo_contrasena">Contraseña</string>
     <string name="acepta_terminos">Acepto los Términos de uso y Condiciones</string>
-    <string name="btn_registro">Registrarme</string>
+    <string name="btn_registro">Registrar usuario</string>
     <string name="btn_limpiar">Limpiar</string>
     <string name="registro_exitoso">Registro exitoso. Bienvenido/a %1$s</string>
 

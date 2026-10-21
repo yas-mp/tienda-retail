@@ -6,6 +6,7 @@ data class FormularioRegistroUiState(
     val correo: String = "",
     val telefono: String = "",
     val contrasena: String = "",
+    val rolSeleccionado: RolUsuario = RolUsuario.OBSERVADOR,
     val esActivo: Boolean = false,
     val aceptarTerminos: Boolean = false,
 

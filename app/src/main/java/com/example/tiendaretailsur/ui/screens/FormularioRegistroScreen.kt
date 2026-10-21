@@ -18,6 +18,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,7 +56,8 @@ import com.example.tiendaretailsur.viewmodel.FormularioRegistroViewModel
 
 @Composable
 fun FormularioRegistroScreen(
-    viewModel: FormularioRegistroViewModel = viewModel()
+    viewModel: FormularioRegistroViewModel = viewModel(),
+    onIrALoginClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -66,13 +68,16 @@ fun FormularioRegistroScreen(
         onCorreoCambia = viewModel::onCorreoCambia,
         onTelefonoCambia = viewModel::onTelefonoCambia,
         onContrasenaCambia = viewModel::onContrasenaCambia,
-        onSeleccionRol = viewModel::onSeleccionRol,
         onAlternarContrasenaVisible = viewModel::onAlternarContrasenaVisible,
+        onSeleccionRol = viewModel::onSeleccionRol,
         onTerminosCambia = viewModel::onTerminosCambia,
-        onRegistrar = viewModel::onRegistrar
+        onLimpiarFormulario = viewModel::onLimpiarFormulario,
+        onRegistrar = viewModel::onRegistrar,
+        onIrALoginClick = onIrALoginClick
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormularioRegistroContent(
     uiState: FormularioRegistroUiState,
@@ -81,10 +86,12 @@ fun FormularioRegistroContent(
     onCorreoCambia: (String) -> Unit,
     onTelefonoCambia: (String) -> Unit,
     onContrasenaCambia: (String) -> Unit,
-    onSeleccionRol: (RolUsuario) -> Unit,
     onAlternarContrasenaVisible: () -> Unit,
+    onSeleccionRol: (RolUsuario) -> Unit, // Agregado
     onTerminosCambia: (Boolean) -> Unit,
-    onRegistrar: () -> Unit
+    onLimpiarFormulario: () -> Unit,
+    onRegistrar: () -> Unit,
+    onIrALoginClick: () -> Unit = {}
 ) {
 
     Scaffold(
@@ -101,23 +108,22 @@ fun FormularioRegistroContent(
                 )
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Top
-
         ) {
             IconButton(
-                onClick = {},
-                modifier = Modifier.padding(bottom = Dimens.espacioPequeno)
-                    .size(44.dp).background(
-                        color = MaterialTheme.colorScheme.background
-                    )
+                onClick = onIrALoginClick,
+                modifier = Modifier
+                    .padding(bottom = Dimens.espacioPequeno)
+                    .size(44.dp)
+                    .background(color = MaterialTheme.colorScheme.background)
             ) {
                 Icon(
-                    painter = painterResource((R.drawable.atras)),
+                    painter = painterResource((R.drawable.atras)), // Asegúrate de tener ic_atras o atras.xml
                     contentDescription = "Volver",
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(20.dp)
                 )
-                Spacer(modifier = Modifier.height(10.dp))
             }
+            Spacer(modifier = Modifier.height(10.dp))
             TituloScreen(
                 titulo = stringResource(R.string.titulo_registro),
                 subtitulo = stringResource(R.string.subtitulo_registro),
@@ -125,16 +131,15 @@ fun FormularioRegistroContent(
             Spacer(modifier = Modifier.height(30.dp))
 
             Text(
-                text = "Rut",
+                text = "RUT",
                 color = MaterialTheme.colorScheme.onSurface,
-
             )
             Spacer(modifier = Modifier.height(2.dp))
             CampoTextoRut(
                 valor = uiState.rut,
                 onValorCambia = onRutCambia,
                 etiqueta = stringResource(R.string.campo_rut),
-                icono = R.drawable.rut,
+                icono = R.drawable.rut, // Asegúrate de tener este icono
                 error = uiState.errorFormatoRut
             )
             Spacer(modifier = Modifier.height(Dimens.espacioInterno))
@@ -144,7 +149,6 @@ fun FormularioRegistroContent(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(2.dp))
-
             CampoTexto(
                 valor = uiState.nombre,
                 onValorCambia = onNombreCambia,
@@ -155,7 +159,7 @@ fun FormularioRegistroContent(
             Spacer(modifier = Modifier.height(Dimens.espacioInterno))
 
             Text(
-                text = "Telefóno",
+                text = "Teléfono",
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(2.dp))
@@ -163,7 +167,7 @@ fun FormularioRegistroContent(
                 valor = uiState.telefono,
                 onValorCambia = onTelefonoCambia,
                 etiqueta = stringResource(R.string.campo_telefono),
-                icono = R.drawable.telefono,
+                icono = R.drawable.telefono, // Asegúrate de tener este icono
                 error = uiState.errorTelefono,
                 tipoTeclado = KeyboardType.Phone
             )
@@ -178,7 +182,7 @@ fun FormularioRegistroContent(
                 valor = uiState.correo,
                 onValorCambia = onCorreoCambia,
                 etiqueta = stringResource(R.string.campo_correo),
-                icono = R.drawable.correo,
+                icono = R.drawable.correo, // Asegúrate de tener este icono
                 error = uiState.errorFormatoCorreo,
                 tipoTeclado = KeyboardType.Email
             )
@@ -197,7 +201,7 @@ fun FormularioRegistroContent(
                 onAlternarContrasenaVisible = onAlternarContrasenaVisible,
                 error = uiState.errorContrasena
             )
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(Dimens.espacioInterno))
 
             var menuRolAbierto by remember { mutableStateOf(false) }
             Text(
@@ -221,8 +225,9 @@ fun FormularioRegistroContent(
                 DropdownMenu(
                     expanded = menuRolAbierto,
                     onDismissRequest = { menuRolAbierto = false },
-                    modifier = Modifier.fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     RolUsuario.entries.forEach { rol ->
                         DropdownMenuItem(
@@ -235,7 +240,7 @@ fun FormularioRegistroContent(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(Dimens.espacioInterno))
 
             Column {
                 CasillaConTexto(
@@ -272,6 +277,7 @@ fun FormularioRegistroContent(
         }
     }
 }
+
 @Composable
 private fun MensajeExitoso(nombre: String) {
     Card(
@@ -300,7 +306,7 @@ private fun MensajeExitoso(nombre: String) {
 @Preview(showBackground = true)
 @Composable
 fun FormularioRegistroContentPreview() {
-    MiRegistroTheme() {
+    MiRegistroTheme {
         FormularioRegistroContent(
             uiState = FormularioRegistroUiState(
                 rolSeleccionado = RolUsuario.OBSERVADOR
@@ -313,7 +319,9 @@ fun FormularioRegistroContentPreview() {
             onSeleccionRol = {},
             onAlternarContrasenaVisible = {},
             onTerminosCambia = {},
-            onRegistrar = {}
+            onRegistrar = {},
+            onLimpiarFormulario = {},
+            onIrALoginClick = {}
         )
     }
 }

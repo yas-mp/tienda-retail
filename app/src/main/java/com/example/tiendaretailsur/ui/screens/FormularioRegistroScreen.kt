@@ -1,5 +1,6 @@
 package com.example.tiendaretailsur.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,11 +17,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tiendaretailsur.R
@@ -39,7 +40,6 @@ import com.example.tiendaretailsur.ui.components.CampoTexto
 import com.example.tiendaretailsur.ui.components.CampoTextoRut
 import com.example.tiendaretailsur.ui.components.CasillaConTexto
 import com.example.tiendaretailsur.ui.components.TituloScreen
-import com.example.tiendaretailsur.ui.theme.CardClara
 import com.example.tiendaretailsur.ui.theme.Dimens
 import com.example.tiendaretailsur.ui.theme.Exito
 import com.example.tiendaretailsur.ui.theme.ExitoFondo
@@ -47,8 +47,7 @@ import com.example.tiendaretailsur.viewmodel.FormularioRegistroViewModel
 
 @Composable
 fun FormularioRegistroScreen(
-    viewModel: FormularioRegistroViewModel = viewModel(),
-    onIrALoginClick: () -> Unit = {}
+    viewModel: FormularioRegistroViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -62,8 +61,7 @@ fun FormularioRegistroScreen(
         onAlternarContrasenaVisible = viewModel::onAlternarContrasenaVisible,
         onTerminosCambia = viewModel::onTerminosCambia,
         onLimpiarFormulario = viewModel::onLimpiarFormulario,
-        onRegistrar = viewModel::onRegistrar,
-        onIrALoginClick = onIrALoginClick
+        onRegistrar = viewModel::onRegistrar
     )
 }
 
@@ -79,42 +77,65 @@ fun FormularioRegistroContent(
     onAlternarContrasenaVisible: () -> Unit,
     onTerminosCambia: (Boolean) -> Unit,
     onLimpiarFormulario: () -> Unit,
-    onRegistrar: () -> Unit,
-    onIrALoginClick: () -> Unit = {}
+    onRegistrar: () -> Unit
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.titulo_registro2)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = CardClara,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-        },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = Dimens.espacioPantalla)
+                .padding(
+                    start = Dimens.espacioPantalla,
+                    end = Dimens.espacioPantalla,
+                    top = innerPadding.calculateTopPadding() / 2,
+                    bottom = innerPadding.calculateTopPadding()
+                )
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(Dimens.espacioInterno)
+            verticalArrangement = Arrangement.Top
+
         ) {
+            IconButton(
+                onClick = {},
+                modifier = Modifier.padding(bottom = Dimens.espacioPequeno)
+                    .size(44.dp).background(
+                        color = MaterialTheme.colorScheme.surfaceVariant
+                    )
+            ) {
+                Icon(
+                    painter = painterResource((R.drawable.atras)),
+                    contentDescription = "Volver",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+            }
             TituloScreen(
                 titulo = stringResource(R.string.titulo_registro),
-                subtitulo = stringResource(R.string.subtitulo_registro)
+                subtitulo = stringResource(R.string.subtitulo_registro),
             )
+            Spacer(modifier = Modifier.height(30.dp))
 
+            Text(
+                text = "Rut",
+                color = MaterialTheme.colorScheme.onSurface,
+
+            )
+            Spacer(modifier = Modifier.height(2.dp))
             CampoTextoRut(
                 valor = uiState.rut,
                 onValorCambia = onRutCambia,
                 etiqueta = stringResource(R.string.campo_rut),
-                icono = R.drawable.ic_rut,
+                icono = R.drawable.rut,
                 error = uiState.errorFormatoRut
             )
+            Spacer(modifier = Modifier.height(Dimens.espacioInterno))
 
+            Text(
+                text = "Nombre completo",
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
             CampoTexto(
                 valor = uiState.nombre,
                 onValorCambia = onNombreCambia,
@@ -122,25 +143,43 @@ fun FormularioRegistroContent(
                 icono = R.drawable.ic_persona,
                 error = uiState.errorNombre
             )
+            Spacer(modifier = Modifier.height(Dimens.espacioInterno))
 
+            Text(
+                text = "Telefóno",
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
             CampoTexto(
                 valor = uiState.telefono,
                 onValorCambia = onTelefonoCambia,
                 etiqueta = stringResource(R.string.campo_telefono),
-                icono = R.drawable.ic_telefono,
+                icono = R.drawable.telefono,
                 error = uiState.errorTelefono,
                 tipoTeclado = KeyboardType.Phone
             )
+            Spacer(modifier = Modifier.height(Dimens.espacioInterno))
 
+            Text(
+                text = "Correo electrónico",
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
             CampoTexto(
                 valor = uiState.correo,
                 onValorCambia = onCorreoCambia,
                 etiqueta = stringResource(R.string.campo_correo),
-                icono = R.drawable.ic_correo,
+                icono = R.drawable.correo,
                 error = uiState.errorFormatoCorreo,
                 tipoTeclado = KeyboardType.Email
             )
+            Spacer(modifier = Modifier.height(Dimens.espacioInterno))
 
+            Text(
+                text = "Contraseña",
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
             CampoContrasena(
                 valor = uiState.contrasena,
                 onValorCambia = onContrasenaCambia,
@@ -174,16 +213,13 @@ fun FormularioRegistroContent(
                     modifier = Modifier.weight(1f)
                 )
             }
-
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = "¿Ya tienes una cuenta? Inicia sesión",
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onIrALoginClick() }
-                    .padding(vertical = Dimens.espacioPequeno)
+                modifier = Modifier.fillMaxWidth().clickable{}.padding(vertical = Dimens.espacioPequeno)
             )
 
             if (uiState.registroExitoso) {
@@ -194,7 +230,6 @@ fun FormularioRegistroContent(
         }
     }
 }
-
 @Composable
 private fun MensajeExitoso(nombre: String) {
     Card(

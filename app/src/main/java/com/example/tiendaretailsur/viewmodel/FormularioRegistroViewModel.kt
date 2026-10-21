@@ -3,7 +3,7 @@ package com.example.tiendaretailsur.viewmodel
 import androidx.lifecycle.ViewModel
 import com.example.tiendaretailsur.model.FormularioRegistroUiState
 import com.example.tiendaretailsur.model.RolUsuario
-import com.example.tiendaretailsur.model.Usuario
+import com.example.tiendaretailsur.model.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +33,7 @@ class FormularioRegistroViewModel : ViewModel() {
     }
 
     fun onTelefonoCambia(valor: String) {
+        // Filtramos para que solo acepte números y un máximo de 9 dígitos
         val soloNumeros = valor.filter { it.isDigit() }.take(9)
         _uiState.update {
             it.copy(telefono = soloNumeros, errorTelefono = null, registroExitoso = false)
@@ -49,15 +50,19 @@ class FormularioRegistroViewModel : ViewModel() {
         _uiState.update { it.copy(contrasenaVisible = !it.contrasenaVisible) }
     }
 
-    fun onSeleccionRol(rolSeleccionado : RolUsuario){
-        _uiState.update { it.copy(rolSeleccionado = rolSeleccionado) }
-    }
-
     fun onTerminosCambia(valor: Boolean) {
         _uiState.update { it.copy(aceptarTerminos = valor, errorTerminos = null) }
     }
 
-    fun onRegistrar() : Usuario? {
+    fun onLimpiarFormulario() {
+        _uiState.value = FormularioRegistroUiState()
+    }
+
+    fun onSeleccionRol(rol: RolUsuario) {
+        _uiState.update { it.copy(rolSeleccionado = rol) }
+    }
+
+    fun onRegistrar() {
         val estado = _uiState.value
 
         val errorRut = if (!validarFormatoRut(estado.rut)) "El RUT no tiene un formato válido" else null
@@ -80,6 +85,18 @@ class FormularioRegistroViewModel : ViewModel() {
             errorTerminos
         ).any { it != null }
 
+        // Guarda el nuevo usuario en el repositorio si no hay errores ---
+        if (!siHayErrores) {
+            UsuarioRepository.registrarNuevoUsuario(
+                rut = estado.rut,
+                nombre = estado.nombre,
+                correo = estado.correo,
+                telefono = estado.telefono,
+                contrasenaPlana = estado.contrasena
+            )
+        }
+        // ----------------------------------------------------------------------------------
+
         _uiState.update {
             it.copy(
                 errorFormatoRut = errorRut,
@@ -91,7 +108,6 @@ class FormularioRegistroViewModel : ViewModel() {
                 registroExitoso = !siHayErrores
             )
         }
-        return if (siHayErrores) null else Usuario(estado.rut, estado.nombre, estado.correo)
     }
 
     fun validarFormatoRut(rut: String): Boolean {

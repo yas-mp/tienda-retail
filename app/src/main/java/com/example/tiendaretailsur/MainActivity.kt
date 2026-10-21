@@ -11,6 +11,7 @@ import com.example.tiendaretailsur.navigation.NavegacionApp
 import com.example.tiendaretailsur.ui.screens.AdminDashboardScreen
 import com.example.tiendaretailsur.ui.screens.LoginScreen
 import com.example.tiendaretailsur.ui.screens.MenuPrincipalScreen
+import com.example.tiendaretailsur.ui.screens.PerfilScreen
 import com.example.tiendaretailsur.ui.screens.RecuperarContrasenaScreen
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 
@@ -89,6 +90,48 @@ private fun AdminDashBoardClaroPreview() {
     MiRegistroTheme(darkTheme = false) {
         Surface(color = MaterialTheme.colorScheme.background) {
             AdminDashboardScreen()
+        }
+    }
+}
+
+
+@Preview(showBackground = true, showSystemUi = true, name = "9.- Perfil - Claro")
+@Composable
+private fun PerfilClaroPreview() {
+    MiRegistroTheme(darkTheme = false) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            PerfilScreen(isAdmin = false)
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "10.- Perfil - Oscuro")
+@Composable
+private fun PerfilOscuroPreview() {
+    MiRegistroTheme(darkTheme = true) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            PerfilScreen(isAdmin = false)
+        }
+    }
+}
+
+
+@Preview(showBackground = true, showSystemUi = true, name = "11.- Perfil Admin - Claro")
+@Composable
+private fun PerfilAdminClaroPreview() {
+    MiRegistroTheme(darkTheme = false) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            PerfilScreen(isAdmin = true)
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "12.- Perfil Admin - Oscuro")
+@Composable
+private fun PerfilAdminOscuroPreview() {
+    MiRegistroTheme(darkTheme = true) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            PerfilScreen(isAdmin = true)
         }
     }
 }

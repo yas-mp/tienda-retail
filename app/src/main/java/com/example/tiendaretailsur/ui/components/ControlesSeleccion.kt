@@ -16,13 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.tiendaretailsur.ui.theme.Blanco
 import com.example.tiendaretailsur.ui.theme.CardClara
 import com.example.tiendaretailsur.ui.theme.Dimens
 import com.example.tiendaretailsur.ui.theme.FondoAppClaro
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
-import com.example.tiendaretailsur.ui.theme.TextoClaro
-
 
 @Composable
 fun CasillaConTexto(
@@ -39,11 +36,11 @@ fun CasillaConTexto(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(marcado, onCheckedChange = null, colors = CheckboxDefaults.colors(
-            checkedColor = CardClara, checkmarkColor = Blanco, uncheckedColor = Blanco) )
+            checkedColor = CardClara, checkmarkColor = MaterialTheme.colorScheme.onSurface, uncheckedColor = MaterialTheme.colorScheme.onSurface) )
         Text(
             text = texto,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = Dimens.espacioPequeno),
         )
     }

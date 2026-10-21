@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.tiendaretailsur.navigation.NavegacionApp
+import com.example.tiendaretailsur.ui.screens.AdminDashboardScreen
 import com.example.tiendaretailsur.ui.screens.FormularioRegistroScreen
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MiRegistroTheme {
-                FormularioRegistroScreen()
+                AdminDashboardScreen()
             }
         }
     }
@@ -71,6 +72,26 @@ private fun ColaboradorOscuroPreview() {
     MiRegistroTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.background) {
             MenuPrincipalScreen(isAdmin = false)
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun AdminDashBoardClaroPreview() {
+    MiRegistroTheme(darkTheme = false) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            AdminDashboardScreen()
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun AdminDashBoardOscuroPreview() {
+    MiRegistroTheme(darkTheme = true) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            AdminDashboardScreen()
         }
     }
 }

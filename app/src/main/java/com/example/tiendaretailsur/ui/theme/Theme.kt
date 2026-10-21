@@ -11,6 +11,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
@@ -22,20 +23,27 @@ private val EsquemaOscuro = darkColorScheme(
     surface = CardOscura,
     onSurface = TextoClaro,
     surfaceVariant = CardOscura,
-    onSurfaceVariant = TextoOscuro
+    onSurfaceVariant = TextoOscuro,
+    primaryContainer = ExitoFondo,
+    onPrimaryContainer = TextoClaro,
+    error = ErrorColor,
+    outlineVariant = GrisDeshabilitada
 )
 
 private val EsquemaClaro = lightColorScheme(
     primary = CardClara,
     onPrimary = TextoClaro,
     background = FondoAppClaro,
-    onBackground = TextoClaro,
+    onBackground = Color(0xFF1C2B2B),
     surface = CardClara,
-    onSurface = TextoClaro,
+    onSurface = Color(0xFF1C2B2B),
     surfaceVariant = FondoApp,
-    onSurfaceVariant = CardClara
+    onSurfaceVariant = Color(0xFF5E6E6E),
+    primaryContainer = FondoAppClaro,
+    onPrimaryContainer = Color(0xFF1C2B2B),
+    error = ErrorColor,
+    outlineVariant = GrisDeshabilitada
 )
-
 private val Formas = Shapes(
     small = RoundedCornerShape(8.dp),
     medium = RoundedCornerShape(12.dp),

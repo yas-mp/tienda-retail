@@ -11,11 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.tiendaretailsur.ui.theme.Blanco
 import com.example.tiendaretailsur.ui.theme.CardClara
 import com.example.tiendaretailsur.ui.theme.Dimens
 import com.example.tiendaretailsur.ui.theme.GrisDeshabilitada
-import com.example.tiendaretailsur.ui.theme.Primario
 
 object EstiloBoton {
     val forma = RoundedCornerShape(Dimens.radioBoton)
@@ -24,15 +22,15 @@ object EstiloBoton {
     @Composable
     fun coloresPrincipal() : ButtonColors = ButtonDefaults.buttonColors(
         containerColor = CardClara,
-        contentColor = Blanco,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         disabledContainerColor = GrisDeshabilitada,
-        disabledContentColor = Blanco
+        disabledContentColor = MaterialTheme.colorScheme.onSurface
     )
 
     @Composable
     fun bordeSecundario() : BorderStroke =
         BorderStroke(Dimens.bordeBoton,
-            Blanco )
+            MaterialTheme.colorScheme.onSurface )
 
     @Composable
     fun coloresSecundario() : ButtonColors = ButtonDefaults.outlinedButtonColors(

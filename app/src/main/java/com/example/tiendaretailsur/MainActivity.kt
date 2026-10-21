@@ -1,6 +1,5 @@
 package com.example.tiendaretailsur
 
-import com.example.tiendaretailsur.ui.screens.MenuPrincipalScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.tiendaretailsur.navigation.NavegacionApp
 import com.example.tiendaretailsur.ui.screens.AdminDashboardScreen
 import com.example.tiendaretailsur.ui.screens.FormularioRegistroScreen
+import com.example.tiendaretailsur.ui.screens.MenuPrincipalScreen
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 
 
@@ -20,9 +20,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MiRegistroTheme {
-                AdminDashboardScreen()
-            }
+            NavegacionApp()
         }
     }
 }
@@ -38,8 +36,8 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    MiRegistroTheme() {
-       FormularioRegistroScreen()
+    MiRegistroTheme {
+        FormularioRegistroScreen()
     }
 }
 
@@ -76,7 +74,7 @@ private fun ColaboradorOscuroPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true, name = "5.- Dashboard - Claro")
 @Composable
 private fun AdminDashBoardClaroPreview() {
     MiRegistroTheme(darkTheme = false) {
@@ -86,7 +84,7 @@ private fun AdminDashBoardClaroPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true, name = "6.- Dashboard - Oscuro")
 @Composable
 private fun AdminDashBoardOscuroPreview() {
     MiRegistroTheme(darkTheme = true) {

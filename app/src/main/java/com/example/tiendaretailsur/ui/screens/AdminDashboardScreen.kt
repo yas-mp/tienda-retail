@@ -73,7 +73,7 @@ fun AdminDashboardScreen(
 
     AdminDashboardContent(
         uiState = uiState,
-        nombreUsuario = usuarioActual?.nombre?: "Subgerente",
+        nombreUsuario = usuarioActual?.nombreCompleto ?: "Subgerente",
         onGestionUsuarios = onGestionUsuarios,
         onAjustes = onAjustes,
         onCerrarSesion = {

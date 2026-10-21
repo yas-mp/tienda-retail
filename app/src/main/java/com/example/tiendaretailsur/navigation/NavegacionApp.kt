@@ -1,6 +1,6 @@
 package com.example.tiendaretailsur.navigation
 
-import MenuPrincipalScreen
+import com.example.tiendaretailsur.ui.screens.MenuPrincipalScreen
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding

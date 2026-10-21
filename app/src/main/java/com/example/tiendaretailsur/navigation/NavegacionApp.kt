@@ -34,6 +34,7 @@ import com.example.tiendaretailsur.ui.screens.FormularioConteoScreen
 import com.example.tiendaretailsur.ui.screens.FormularioRegistroScreen
 import com.example.tiendaretailsur.ui.screens.LoginScreen
 import com.example.tiendaretailsur.ui.screens.MenuPrincipalScreen
+import com.example.tiendaretailsur.ui.screens.RecuperarContrasenaScreen
 import com.example.tiendaretailsur.ui.theme.CardOscura
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 import com.example.tiendaretailsur.ui.theme.TextoOscuro
@@ -41,6 +42,7 @@ import com.example.tiendaretailsur.ui.theme.TextoOscuro
 object Rutas {
     const val PRUEBAS = "pruebas"
     const val LOGIN = "login"
+    const val RECUPERAR_CONTRASENA = "recuperar_contrasena"
     const val MENU_PRINCIPAL = "menu_principal"
     const val FORM_CONTEO = "formulario_conteo"
     const val FORM_REGISTRO = "formulario_registro"
@@ -58,7 +60,7 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
     val navController = rememberNavController()
     val rutaActual = navController.currentBackStackEntryAsState().value?.destination?.route
 
-    // El dashboard ya trae su propio Scaffold y TopAppBar, así que ahí se oculta la barra de pruebas
+    // El dashboard y el Login ya traen su propio diseño, la barra de pruebas se oculta allí
     val mostrarBarraPruebas = rutaActual != Rutas.ADMIN_DASHBOARD
 
     val navContainerColor = CardOscura
@@ -71,7 +73,7 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                 if (mostrarBarraPruebas) {
                     TopAppBar(
                         title = {
-                            Text(if (isAdmin) "Tienda Retail Sur (Admin)" else "Tienda Retail Sur (usuario)")
+                            Text(if (isAdmin) "Tienda Retail Sur (Admin)" else "Tienda Retail Sur (Usuario)")
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = navContainerColor,
@@ -87,7 +89,7 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                             }
                             TextButton(onClick = { isAdmin = !isAdmin }) {
                                 Text(
-                                    text = if (isAdmin) "usuario" else "Admin",
+                                    text = if (isAdmin) "Usuario" else "Admin",
                                     color = unselectedColor,
                                     style = MaterialTheme.typography.labelMedium
                                 )
@@ -99,21 +101,55 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Rutas.PRUEBAS, // cambiar a Rutas.LOGIN al terminar
+                startDestination = Rutas.LOGIN, // ----------------- CAMBIO AL LOGIN COMO INICIO -----------------
                 modifier = if (mostrarBarraPruebas) Modifier.padding(innerPadding) else Modifier
             ) {
                 composable(Rutas.PRUEBAS) { PantallaPruebas(navController) }
 
-                composable(Rutas.LOGIN) { LoginScreen() }
+                // ----------------- PANTALLAS CONECTADAS -----------------
+                composable(Rutas.LOGIN) {
+                    LoginScreen(
+                        onLoginSuccess = { usuarioAutenticado ->
+                            // Aquí más adelante verificaremos si el usuarioAutenticado es P-01 (Admin) o P-04 (Vendedor)
+                            // Por ahora, navegamos al menú principal al ingresar correctamente.
+                            navController.navigate(Rutas.MENU_PRINCIPAL)
+                        },
+                        onOlvideContrasenaClick = {
+                            navController.navigate(Rutas.RECUPERAR_CONTRASENA)
+                        },
+                        onCrearCuentaClick = {
+                            navController.navigate(Rutas.FORM_REGISTRO)
+                        }
+                    )
+                }
+
+                composable(Rutas.RECUPERAR_CONTRASENA) {
+                    RecuperarContrasenaScreen(
+                        onVolverALoginClick = {
+                            navController.popBackStack() // Cierra recuperación y vuelve al Login
+                        }
+                    )
+                }
+
+                composable(Rutas.FORM_REGISTRO) {
+                    FormularioRegistroScreen(
+                        onIrALoginClick = {
+                            navController.navigate(Rutas.LOGIN) {
+                                popUpTo(Rutas.LOGIN) { inclusive = true } // Evita que se acumulen pantallas
+                            }
+                        }
+                    )
+                }
+                // --------------------------------------------------------
+
                 composable(Rutas.MENU_PRINCIPAL) { MenuPrincipalScreen(isAdmin = isAdmin) }
                 composable(Rutas.FORM_CONTEO) { FormularioConteoScreen() }
-                composable(Rutas.FORM_REGISTRO) { FormularioRegistroScreen() }
 
                 composable(Rutas.ADMIN_DASHBOARD) {
                     AdminDashboardScreen(
                         onGestionUsuarios = { navController.navigate(Rutas.GESTION_USUARIOS) },
                         onAjustes = { navController.navigate(Rutas.AJUSTES) },
-                        onCerrarSesionClick = { navController.popBackStack(Rutas.PRUEBAS, inclusive = false) }
+                        onCerrarSesionClick = { navController.popBackStack(Rutas.LOGIN, inclusive = false) }
                     )
                 }
 
@@ -132,6 +168,7 @@ private fun PantallaPruebas(navController: NavHostController) {
         "Menú principal" to Rutas.MENU_PRINCIPAL,
         "Formulario de conteo" to Rutas.FORM_CONTEO,
         "Formulario de registro" to Rutas.FORM_REGISTRO,
+        "Recuperar contraseña" to Rutas.RECUPERAR_CONTRASENA,
         "Dashboard admin" to Rutas.ADMIN_DASHBOARD,
         "Gestión de usuarios (pendiente)" to Rutas.GESTION_USUARIOS,
         "Ajustes (pendiente)" to Rutas.AJUSTES

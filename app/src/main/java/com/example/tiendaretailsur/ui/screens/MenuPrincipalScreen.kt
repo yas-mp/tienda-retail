@@ -54,18 +54,10 @@ fun MenuPrincipalScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    UserHeader(userName = "Andrea", title = "Menú Principal", initials = "AM")
-                    Button(
-                        onClick = onIrAdminDashboard,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Ver Panel Avanzado (Admin Dashboard)")
-                    }
-                }
+                UserHeader(userName = "Andrea", title = "Menú Principal", initials = "AM")
             }
 
-            // BÁNER: Total de ingresos de las 4 puertas y porcentajes
+            // baner: Total de ingresos de las 4 puertas y porcentajes
             item {
                 Card(
                     colors = CardDefaults.cardColors(
@@ -197,9 +189,27 @@ fun MenuPrincipalScreen(
                     }
                 }
             }
+
+            // Botón para ver el Panel
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = onIrAdminDashboard,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text(
+                        text = "Ver Panel ",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     } else {
-        // VISTA DE USUARIO / COLABORADOR
+        //  VISTA DE USUARIO
         if (accesoSeleccionado == null) {
             LazyColumn(
                 modifier = modifier
@@ -278,7 +288,6 @@ fun MenuPrincipalScreen(
                 }
             }
         } else {
-            // Al seleccionar la puerta, se despliega el formulario de conteo en vivo para esa puerta
             FormularioConteoScreen(
                 puertaInicial = accesoSeleccionado!!,
                 modifier = modifier,

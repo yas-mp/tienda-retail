@@ -142,6 +142,16 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                 }
                 // --------------------------------------------------------
 
+                // CONEXIÓN DEL MENÚ PRINCIPAL AL ADMIN DASHBOARD
+                composable(Rutas.MENU_PRINCIPAL) {
+                    MenuPrincipalScreen(
+                        isAdmin = isAdmin,
+                        onIrAdminDashboard = {
+                            navController.navigate(Rutas.ADMIN_DASHBOARD)
+                        }
+                    )
+                }
+
                 composable(Rutas.MENU_PRINCIPAL) { MenuPrincipalScreen(isAdmin = isAdmin) }
                 composable(Rutas.FORM_CONTEO) { FormularioConteoScreen() }
 
@@ -201,4 +211,6 @@ private fun PantallaPendiente(nombre: String) {
     ) {
         Text("$nombre\n(por desarrollar)", style = MaterialTheme.typography.titleMedium)
     }
+
+
 }

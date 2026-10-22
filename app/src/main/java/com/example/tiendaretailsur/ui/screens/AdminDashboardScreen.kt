@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -46,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -73,12 +73,13 @@ fun AdminDashboardScreen(
 
     AdminDashboardContent(
         uiState = uiState,
-        nombreUsuario = usuarioActual?.nombre?: "Subgerente",
+        nombreUsuario = usuarioActual?.nombre ?: "Subgerente",
         onGestionUsuarios = onGestionUsuarios,
         onAjustes = onAjustes,
         onCerrarSesion = {
             usuarioViewModel.cerrarSesion()
-            onCerrarSesionClick()}
+            onCerrarSesionClick()
+        }
     )
 }
 
@@ -166,7 +167,7 @@ fun AdminDashboardContent(
             topBar = {
                 TopAppBar(
                     title = {
-                        Column{
+                        Column {
                             Text(
                                 text = "Rincón del sur",
                                 style = MaterialTheme.typography.titleMedium,
@@ -189,10 +190,10 @@ fun AdminDashboardContent(
                     }
                 )
             }
-
-        ) {innerPadding ->
+        ) { innerPadding ->
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(innerPadding)
                     .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState())
@@ -224,8 +225,7 @@ fun AdminDashboardContent(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                GraficoFlujo(datos = uiState.flujoPorHora())
+                GraficoFlujo(datos = uiState.flujoPorHora)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
@@ -245,6 +245,7 @@ fun AdminDashboardContent(
         }
     }
 }
+
 @Composable
 fun TarjetaResumen(
     titulo: String,
@@ -259,8 +260,7 @@ fun TarjetaResumen(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ){
-        Column(
-            modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Icon(
                 imageVector = icono,
                 contentDescription = null,
@@ -281,66 +281,110 @@ fun TarjetaResumen(
         }
     }
 }
+
 @Composable
-fun GraficoFlujo(datos : List<DatoGrafico> = emptyList()){
+fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
+    val coloresBarras = listOf(
+        Color(0xFF2196F3),
+        Color(0xFFFF9800),
+        Color(0xFF00BFA5),
+        Color(0xFFE91E63),
+        Color(0xFF7C4DFF),
+        Color(0xFF00BCD4)
+    )
+
+    val total = datos.sumOf { it.valor }
+    val valorMaximo = datos.maxOfOrNull { it.valor }?.toFloat() ?: 100f
+
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Flujo de visitas por hora",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = "Picos de tráfico en pasillos",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(130.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    datos.forEach { dato ->
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Bottom,
-                            modifier = Modifier.fillMaxHeight()
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .width(22.dp)
-                                    .fillMaxHeight(dato.valor / 100f)
-                                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                    .background(MaterialTheme.colorScheme.onSurfaceVariant)
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Panel de Gráficos",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFECE6F0)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        datos.forEachIndexed { index, dato ->
+                            val colorBarra = coloresBarras[index % coloresBarras.size]
+
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Bottom,
+                                modifier = Modifier.fillMaxHeight()
+                            ) {
+                                Text(
+                                    text = "${dato.valor}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.DarkGray
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Box(
+                                    modifier = Modifier
+                                        .width(28.dp)
+                                        .fillMaxHeight((dato.valor / valorMaximo).coerceIn(0.15f, 1f))
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(colorBarra)
+                                )
+                            }
+                        }
+                    }
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        color = Color.Gray
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        datos.forEach { dato ->
                             Text(
                                 text = dato.etiqueta,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = Color.DarkGray
                             )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "Total: $total",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
                 }
             }
         }
     }
 }
+
 @Composable
 fun ItemSesionResumen(sesion: SesionResumen) {
     val estadoTexto = if (sesion.estado == 1) "Finalizada" else "En Curso"
-    val estadoColor = if (sesion.estado == 1) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface
+    val estadoColor = MaterialTheme.colorScheme.onSurface
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -372,9 +416,6 @@ fun ItemSesionResumen(sesion: SesionResumen) {
                 color = estadoColor,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(8.dp))
-
-
         }
     }
 }
@@ -483,6 +524,13 @@ fun AdminDashboardPreview() {
             uiState = AdminDashboardUiState(
                 totalVisitas = 125,
                 observadoresActivos = 3,
+                flujoPorHora = listOf(
+                    DatoGrafico("10h", 25),
+                    DatoGrafico("12h", 65),
+                    DatoGrafico("14h", 45),
+                    DatoGrafico("16h", 30),
+                    DatoGrafico("18h", 80)
+                ),
                 listaSesiones = listOf(
                     SesionResumen(1, "Juan Pérez", "13:30 hrs", 45, 1),
                     SesionResumen(2, "Carlos Rodríguez", "17:30 hrs", 20, 0)
@@ -491,6 +539,3 @@ fun AdminDashboardPreview() {
         )
     }
 }
-
-
-

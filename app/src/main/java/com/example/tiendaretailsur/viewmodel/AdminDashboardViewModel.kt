@@ -1,6 +1,7 @@
 package com.example.tiendaretailsur.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.example.tiendaretailsur.data.GraficoRepository
 import com.example.tiendaretailsur.model.AdminDashboardUiState
 import com.example.tiendaretailsur.model.SesionResumen
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,7 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class AdminDashboardViewModel : ViewModel() {
+class AdminDashboardViewModel(
+    private val graficoRepository: GraficoRepository = GraficoRepository()
+) : ViewModel() {
     private val _uiState = MutableStateFlow(AdminDashboardUiState())
     val uiState: StateFlow<AdminDashboardUiState> = _uiState.asStateFlow()
 
@@ -45,6 +48,7 @@ class AdminDashboardViewModel : ViewModel() {
                 totalVisitas = listaSesionesPrueba.sumOf { it.conteo },
                 observadoresActivos = listaSesionesPrueba.count{it.estado == 0},
                 listaSesiones = listaSesionesPrueba,
+                flujoPorHora = graficoRepository.obtenerFlujoPorHora(),
                 estaCargando = false
             )
         }

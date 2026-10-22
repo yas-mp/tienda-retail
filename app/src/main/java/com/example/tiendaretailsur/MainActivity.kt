@@ -1,62 +1,69 @@
 package com.example.tiendaretailsur
 
-import com.example.tiendaretailsur.ui.screens.MenuPrincipalScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.tiendaretailsur.navigation.NavegacionApp
 import com.example.tiendaretailsur.ui.screens.AdminDashboardScreen
-import com.example.tiendaretailsur.ui.screens.FormularioRegistroScreen
+import com.example.tiendaretailsur.ui.screens.LoginScreen
+import com.example.tiendaretailsur.ui.screens.MenuPrincipalScreen
+import com.example.tiendaretailsur.ui.screens.RecuperarContrasenaScreen
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MiRegistroTheme {
-                AdminDashboardScreen()
-            }
+            NavegacionApp()
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+// =========================================================================
+// PREVIEWS
+// =========================================================================
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true, name = "1.- Login - Claro")
 @Composable
-fun GreetingPreview() {
-    MiRegistroTheme() {
-       FormularioRegistroScreen()
+private fun LoginClaroPreview() {
+    MiRegistroTheme(darkTheme = false) {
+        LoginScreen()
     }
 }
 
+@Preview(showBackground = true, showSystemUi = true, name = "2.- Login - Oscuro")
+@Composable
+private fun LoginOscuroPreview() {
+    MiRegistroTheme(darkTheme = true) {
+        LoginScreen()
+    }
+}
 
-@Preview(showBackground = true, showSystemUi = true, name = "1.- Admin - Claro")
+@Preview(showBackground = true, showSystemUi = true, name = "3.- Recuperar Contraseña - Claro")
+@Composable
+private fun RecuperarClaroPreview() {
+    MiRegistroTheme(darkTheme = false) {
+        RecuperarContrasenaScreen()
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "4.- Admin - Claro")
 @Composable
 private fun AppAdminClaroPreview() {
     NavegacionApp(initialDarkTheme = false)
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "2.- Admin - Oscuro")
+@Preview(showBackground = true, showSystemUi = true, name = "5.- Admin - Oscuro")
 @Composable
 private fun AppAdminOscuroPreview() {
     NavegacionApp(initialDarkTheme = true)
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "3.- Usuario - Claro")
+@Preview(showBackground = true, showSystemUi = true, name = "6.- Usuario - Claro")
 @Composable
 private fun ColaboradorClaroPreview() {
     MiRegistroTheme(darkTheme = false) {
@@ -66,7 +73,7 @@ private fun ColaboradorClaroPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "4.- Usuario - Oscuro")
+@Preview(showBackground = true, showSystemUi = true, name = "7.- Usuario - Oscuro")
 @Composable
 private fun ColaboradorOscuroPreview() {
     MiRegistroTheme(darkTheme = true) {
@@ -76,20 +83,10 @@ private fun ColaboradorOscuroPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true, name = "8.- Dashboard - Claro")
 @Composable
 private fun AdminDashBoardClaroPreview() {
     MiRegistroTheme(darkTheme = false) {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            AdminDashboardScreen()
-        }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun AdminDashBoardOscuroPreview() {
-    MiRegistroTheme(darkTheme = true) {
         Surface(color = MaterialTheme.colorScheme.background) {
             AdminDashboardScreen()
         }

@@ -44,16 +44,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiendaretailsur.ui.theme.Dimens
-import com.example.tiendaretailsur.viewmodel.LoginViewModel
 import com.example.tiendaretailsur.R
+import com.example.tiendaretailsur.model.Usuario
+import com.example.tiendaretailsur.ui.theme.Dimens
 import com.example.tiendaretailsur.ui.theme.Exito
+import com.example.tiendaretailsur.ui.theme.ExitoFondo
 import com.example.tiendaretailsur.ui.theme.GrisDeshabilitada
+import com.example.tiendaretailsur.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
-    onLoginSuccess: () -> Unit = {},
+    onLoginSuccess: (Usuario) -> Unit = {},
     onOlvideContrasenaClick: () -> Unit = {},
     onCrearCuentaClick: () -> Unit = {}
 ) {
@@ -74,7 +76,7 @@ fun LoginScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.Start
         ) {
-            // 1. Encabezado: Icono en recuadro + "Aforo"
+            // Encabezado: Icono en recuadro + "Aforo"
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -104,7 +106,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(Dimens.espacioGrande))
 
-            // 2. Tarjeta Superior ("CADA ACCESO CUENTA")
+            // Tarjeta Superior ("CADA ACCESO CUENTA")
             Card(
                 shape = formas.large,
                 colors = CardDefaults.cardColors(containerColor = colores.surfaceVariant),
@@ -162,7 +164,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(Dimens.espacioGrande))
 
-            // 3. Saludo y Descripción
+            // Saludo y Descripción
             Text(
                 text = stringResource(id = R.string.login_saludo),
                 style = tipografia.titleLarge.copy(fontSize = 30.sp, lineHeight = 36.sp),
@@ -177,7 +179,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(Dimens.espacioGrande))
 
-            // 4. Campo Correo Electrónico
+            // Campo Correo Electrónico o RUT
             Text(
                 text = stringResource(id = R.string.login_label_correo),
                 style = tipografia.labelLarge,
@@ -233,7 +235,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(Dimens.espacioMedio))
 
-            // 5. Campo Contraseña
+            // Campo Contraseña
             Text(
                 text = stringResource(id = R.string.login_label_contrasena),
                 style = tipografia.labelLarge,
@@ -307,7 +309,7 @@ fun LoginScreen(
                 )
             }
 
-            // 6. Botón "¿Olvidaste tu contraseña?"
+            // Botón "¿Olvidaste tu contraseña?"
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.CenterEnd
@@ -323,12 +325,14 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(Dimens.espacioChico))
 
-            // 7. Botón Principal "Iniciar sesión ->"
+            // Botón Principal "Iniciar sesión ->"
             Button(
                 onClick = {
                     viewModel.login()
-                    if (uiState.correo.isNotBlank() && uiState.contrasena.isNotBlank()) {
-                        onLoginSuccess()
+                    uiState.usuarioAutenticado?.let { usuario ->
+                        if (uiState.loginExitoso) {
+                            onLoginSuccess(usuario)
+                        }
                     }
                 },
                 enabled = !uiState.isLoading,
@@ -370,10 +374,16 @@ fun LoginScreen(
                 }
             }
 
+            // Cartel Verde de Confirmación de Login Exitoso
+            if (uiState.loginExitoso && uiState.usuarioAutenticado != null) {
+                Spacer(modifier = Modifier.height(Dimens.espacioMedio))
+                MensajeLoginExitoso(usuario = uiState.usuarioAutenticado!!)
+            }
+
             Spacer(modifier = Modifier.weight(1f))
             Spacer(modifier = Modifier.height(Dimens.espacioGrande))
 
-            // 8. Footer: Crear cuenta y mensaje de seguridad
+            // Footer: Crear cuenta y mensaje de seguridad
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -403,6 +413,45 @@ fun LoginScreen(
                         color = colores.onBackground.copy(alpha = 0.75f)
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MensajeLoginExitoso(usuario: Usuario) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = ExitoFondo,
+            contentColor = Exito
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(Dimens.espacioMedio),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_check),
+                contentDescription = null,
+                tint = Exito,
+                modifier = Modifier.size(Dimens.tamanoIcono)
+            )
+            Spacer(modifier = Modifier.width(Dimens.espacioMedio))
+            Column {
+                Text(
+                    text = "Acceso autorizado: ${usuario.nombreCompleto}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Exito
+                )
+                Text(
+                    text = "${usuario.cargo} • Perfil ${usuario.perfil} (RUT: ${usuario.rut})",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     }

@@ -13,7 +13,8 @@ data class Usuario(
     val preguntaSeguridad1: String = "",
     val respuestaHash1: String = "",
     val preguntaSeguridad2: String = "",
-    val respuestaHash2: String = ""
+    val respuestaHash2: String = "",
+    val avatar: ByteArray? = null
 ) {
     val nombre: String
         get() = nombreCompleto

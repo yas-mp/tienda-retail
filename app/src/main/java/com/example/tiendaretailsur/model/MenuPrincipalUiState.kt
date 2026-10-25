@@ -40,14 +40,4 @@ data class ReporteHorario(
 )
 
 
-object TiendaRepository {
-    val listaAccesos = listOf(
-        AccesoTienda("A1", "Acceso Principal", "Patio de comidas del mall / Pasillo central"),
-        AccesoTienda("A2", "Acceso Lateral", "Pasillo del mall, lado norte"),
-        AccesoTienda("A3", "Acceso Estacionamiento", "Estacionamiento subterráneo (señal de red débil)"),
-        AccesoTienda("A4", "Acceso Conexión", "Conexión directa con tienda vecina de mejoramiento del hogar")
-    )
 
-    val listaResumenesDiarios: List<ResumenDiario> = emptyList()
-
-}

@@ -31,8 +31,8 @@ private val EsquemaOscuro = darkColorScheme(
 )
 
 private val EsquemaClaro = lightColorScheme(
-    primary = CardClara,
-    onPrimary = TextoClaro,
+    primary = FondoApp,
+    onPrimary = Color.White,
     background = FondoAppClaro,
     onBackground = Color(0xFF1C2B2B),
     surface = CardClara,

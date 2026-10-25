@@ -1,13 +1,5 @@
 package com.example.tiendaretailsur.model
 
-data class MenuPrincipalUiState(
-    val ultimoResumen: ResumenDiario? = null,
-    val listaAccesos: List<AccesoTienda> = emptyList(),
-    val totalIngresosCuatroPuertas: Int = 14520,
-    val porcentajeTransito: Float = 62.4f,
-    val porcentajeClientes: Float = 37.6f
-)
-
 data class AccesoTienda(
     val id: String,
     val nombre: String,
@@ -37,6 +29,15 @@ data class ReporteHorario(
     val total: Int,
     val boletas: Int,
     val conversion: Double
+)
+
+data class MenuPrincipalUiState(
+    val ultimoResumen: ResumenDiario? = null,
+    val listaAccesos: List<AccesoTienda> = emptyList(),
+    val totalIngresosCuatroPuertas: Int = 0,
+    val porcentajeTransito: Float = 0f,
+    val porcentajeClientes: Float = 0f,
+    val conteosPorPuerta: Map<String, Int> = emptyMap()
 )
 
 

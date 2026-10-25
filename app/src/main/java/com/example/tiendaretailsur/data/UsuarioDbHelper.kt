@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.tiendaretailsur.model.AccesoTienda
 import com.example.tiendaretailsur.model.DatoGrafico
 import com.example.tiendaretailsur.model.FormularioConteoUiState
 import com.example.tiendaretailsur.model.FormularioRegistroUiState
@@ -35,6 +36,13 @@ class UsuarioDbHelper(context: Context)
         private const val PREGUNTA_SEG =  "pregunta_seguridad"
         private const val RESPUESTA_SEG = "respuesta_seguridad"
         private const val AVATAR_USUARIO = "avatar"
+        private const val TURNO_USUARIO = "turno"
+
+
+        private const val TABLA_PUERTAS = "puertas"
+        private const val ID_PUERTA = "id_puerta"
+        private const val NOMBRE_PUERTA = "nombre_puerta"
+        private const val DESCRIPCION_PUERTA = "descripcion_puerta"
 
         private const val TABLA_CONTEO = "formulario_conteo"
         private const val ID_CONTEO = "id_conteo"
@@ -45,6 +53,7 @@ class UsuarioDbHelper(context: Context)
         private const val COMPANIA = "compania"
         private const val OBSERVADOR = "observador"
         private const val HORA = "hora"
+        private const val ID_USUARIO_FK = "id_usuario"
 
         private const val SQL_CREAR_ROLES =
             "CREATE TABLE $TABLA_ROLES (" +
@@ -64,6 +73,7 @@ class UsuarioDbHelper(context: Context)
                     "$PREGUNTA_SEG TEXT, " +
                     "$RESPUESTA_SEG TEXT, " +
                     "$AVATAR_USUARIO BLOB, " +
+                    "$TURNO_USUARIO TEXT DEFAULT 'N/A', " +
                     "$ROL_USUARIO INTEGER NOT NULL REFERENCES $TABLA_ROLES($ID_ROL))"
 
         private const val SQL_CREAR_CONTEOS =
@@ -75,7 +85,8 @@ class UsuarioDbHelper(context: Context)
                     "$RANGO_ETARIO TEXT NOT NULL, " +
                     "$COMPANIA TEXT NOT NULL, " +
                     "$OBSERVADOR TEXT NOT NULL, " +
-                    "$HORA TEXT NOT NULL)"
+                    "$HORA TEXT NOT NULL, " +
+                    "$ID_USUARIO_FK INTEGER REFERENCES $TABLA_USUARIO($ID_USUARIO))"
 
         private const val SQL_AGREGAR_AVATAR =
             "ALTER TABLE $TABLA_USUARIO ADD COLUMN $AVATAR_USUARIO BLOB"
@@ -86,12 +97,19 @@ class UsuarioDbHelper(context: Context)
                 "(2, 'P-04','OBSERVADOR', 'Toma datos de conteo en terreno')"
 
         private const val SQL_PRECARGAR_USUARIOS =
-            "INSERT INTO $TABLA_USUARIO ($RUT_USUARIO, $NOMBRE_USUARIO, $CORREO_USUARIO, $CONTRASENA, $ROL_USUARIO) VALUES " +
-                    "('12345678-9', 'Gabriel Gómez', 'admin@rincondelsur.cl', '1234', 1, '¿Mascota?', 'perro'), " +
-                    "('98765432-1', 'Juan Pérez', 'juan@rincondelsur.cl', '1234', 2, '¿Mascota?', 'gato'), " +
-                    "('18111222-3', 'Camila Soto', 'c.soto@rincondelsur.cl', '1234', 2, '¿Mascota?', 'perro'), " +
-                    "('19222333-4', 'Mateo Silva', 'm.silva@rincondelsur.cl', '1234', 2, '¿Mascota?', 'gato'), " +
-                    "('17333444-5', 'Valentina Rojas', 'v.rojas@rincondelsur.cl', '1234', 2, '¿Mascota?', 'perro')"
+            "INSERT INTO $TABLA_USUARIO ($RUT_USUARIO, $NOMBRE_USUARIO, $CORREO_USUARIO, $CONTRASENA, $TURNO_USUARIO, $PREGUNTA_SEG, $RESPUESTA_SEG, $ROL_USUARIO) VALUES " +
+                    "('12345678-9', 'Gabriel Gómez', 'admin@rincondelsur.cl', '1234', 'N/A', '¿Mascota?', 'perro', 1), " +
+                    "('98765432-1', 'Juan Pérez', 'juan@rincondelsur.cl', '1234', 'Turno Diurno', '¿Mascota?', 'gato', 2), " +
+                    "('18111222-3', 'Camila Soto', 'c.soto@rincondelsur.cl', '1234', 'Turno Vespertino', '¿Mascota?', 'perro', 2), " +
+                    "('19222333-4', 'Mateo Silva', 'm.silva@rincondelsur.cl', '1234', 'Turno Diurno', '¿Mascota?', 'gato', 2), " +
+                    "('17333444-5', 'Valentina Rojas', 'v.rojas@rincondelsur.cl', '1234', 'Turno Vespertino', '¿Mascota?', 'perro', 2)"
+
+        private const val SQL_PRECARGAR_PUERTAS =
+            "INSERT INTO $TABLA_PUERTAS ($ID_PUERTA, $NOMBRE_PUERTA, $DESCRIPCION_PUERTA) VALUES " +
+                    "('A1', 'Acceso Principal', 'Patio de comidas del mall / Pasillo central'), " +
+                    "('A2', 'Acceso Lateral', 'Pasillo del mall, lado norte'), " +
+                    "('A3', 'Acceso Estacionamiento', 'Estacionamiento subterráneo (señal de red débil)'), " +
+                    "('A4', 'Acceso Conexión', 'Conexión directa con tienda vecina de mejoramiento del hogar')"
 
         private const val SQL_PRECARGAR_CONTEOS =
             "INSERT INTO $TABLA_CONTEO (" +
@@ -130,6 +148,24 @@ class UsuarioDbHelper(context: Context)
         }
     }
 
+
+    fun listarPuertas(): List<AccesoTienda> {
+        val lista = mutableListOf<AccesoTienda>()
+        val sql = "SELECT * FROM $TABLA_PUERTAS ORDER BY $ID_PUERTA ASC"
+        readableDatabase.rawQuery(sql, null).use { cursor ->
+            while (cursor.moveToNext()) {
+                lista.add(
+                    AccesoTienda(
+                        id = cursor.getString(cursor.getColumnIndexOrThrow(ID_PUERTA)),
+                        nombre = cursor.getString(cursor.getColumnIndexOrThrow(NOMBRE_PUERTA)),
+                        descripcion = cursor.getString(cursor.getColumnIndexOrThrow(DESCRIPCION_PUERTA))
+                    )
+                )
+            }
+        }
+        return lista
+    }
+
     fun actualizarAvatar(id: Long, avatar: ByteArray): Int {
         val valores = ContentValues().apply { put(AVATAR_USUARIO, avatar) }
         return writableDatabase.update(
@@ -151,6 +187,7 @@ class UsuarioDbHelper(context: Context)
             put(ROL_USUARIO, uiState.rolSeleccionado.id)
             put(PREGUNTA_SEG, uiState.preguntaSeleccionada)
             put(RESPUESTA_SEG, uiState.respuestaSeguridad.trim().lowercase())
+            put(TURNO_USUARIO, "Turno Diurno")
         }
         return db.insert(TABLA_USUARIO, null, valores)
 
@@ -243,10 +280,10 @@ class UsuarioDbHelper(context: Context)
     fun registrarFormularioConteo(
         uiState: FormularioConteoUiState,
         nombreObservador: String,
-        turnoHora: String
-    ) : Long{
+        turnoHora: String,
+        idUsuario: Long = 0
+    ): Long {
         val db = writableDatabase
-
         val valores = ContentValues().apply {
             put(PUERTA_ACCESO, uiState.puertaAcceso)
             put(CANT_TRANSITO, uiState.cantidadTransito)
@@ -255,11 +292,12 @@ class UsuarioDbHelper(context: Context)
             put(COMPANIA, uiState.compania)
             put(OBSERVADOR, nombreObservador)
             put(HORA, turnoHora)
+            if (idUsuario > 0) put(ID_USUARIO_FK, idUsuario)
         }
         return db.insert(TABLA_CONTEO, null, valores)
     }
 
-    fun listarConteos() : List<FormularioConteoUiState>{
+    fun listarConteos(): List<FormularioConteoUiState> {
         val lista = mutableListOf<FormularioConteoUiState>()
         val sql = "SELECT * FROM $TABLA_CONTEO ORDER BY $ID_CONTEO DESC"
 
@@ -281,6 +319,7 @@ class UsuarioDbHelper(context: Context)
         }
         return lista
     }
+
     fun historialConteo() : List<FormularioConteoUiState>{
         return listarConteos()
     }

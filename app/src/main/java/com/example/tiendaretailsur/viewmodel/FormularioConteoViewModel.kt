@@ -1,13 +1,26 @@
 package com.example.tiendaretailsur.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.FormularioConteoUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class FormularioConteoViewModel : ViewModel() {
+class FormularioConteoViewModel : AndroidViewModel {
+    private val dbHelper: UsuarioDbHelper?
+
+    constructor() : super(Application()) {
+        dbHelper = null
+    }
+
+    constructor(application: Application) : super(application) {
+        dbHelper = UsuarioDbHelper(application)
+    }
+
     private val _uiState = MutableStateFlow(FormularioConteoUiState())
     val uiState: StateFlow<FormularioConteoUiState> = _uiState.asStateFlow()
 
@@ -40,6 +53,8 @@ class FormularioConteoViewModel : ViewModel() {
     }
 
     fun enviarFormulario() {
+        val estado = _uiState.value
+        dbHelper?.registrarFormularioConteo(estado, "Andrea Valencia", "12h")
         _uiState.update { it.copy(envioExitoso = true) }
     }
 

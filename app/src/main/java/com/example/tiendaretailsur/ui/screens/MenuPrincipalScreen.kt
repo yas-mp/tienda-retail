@@ -29,10 +29,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tiendaretailsur.model.TiendaRepository
 import com.example.tiendaretailsur.ui.components.UserHeader
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 import com.example.tiendaretailsur.viewmodel.MenuPrincipalViewModel
+
 
 @Composable
 fun MenuPrincipalScreen(
@@ -46,7 +46,7 @@ fun MenuPrincipalScreen(
     var accesoSeleccionado by remember { mutableStateOf<String?>(null) }
 
     if (isAdmin) {
-        // VISTA DE ADMINISTRADOR
+        //VISTA DE ADMINISTRADOR
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
@@ -147,13 +147,7 @@ fun MenuPrincipalScreen(
             }
 
             items(uiState.listaAccesos) { acceso ->
-                val cantidad = when (acceso.id) {
-                    "A1" -> ultimoResumen?.a1 ?: 3650
-                    "A2" -> ultimoResumen?.a2 ?: 3210
-                    "A3" -> ultimoResumen?.a3 ?: 2890
-                    "A4" -> ultimoResumen?.a4 ?: 4770
-                    else -> 0
-                }
+                val cantidad = uiState.conteosPorPuerta[acceso.id] ?: 0
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -190,7 +184,7 @@ fun MenuPrincipalScreen(
                 }
             }
 
-            // Botón para ver el Panel
+            // boto para ver el panel avanzado
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
@@ -198,10 +192,14 @@ fun MenuPrincipalScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    shape = MaterialTheme.shapes.medium
+                    shape = MaterialTheme.shapes.medium,
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = com.example.tiendaretailsur.ui.theme.FondoApp,
+                        contentColor = androidx.compose.ui.graphics.Color.White
+                    )
                 ) {
                     Text(
-                        text = "Ver Panel ",
+                        text = "Ver Panel Avanzado (Admin Dashboard)",
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -209,7 +207,7 @@ fun MenuPrincipalScreen(
             }
         }
     } else {
-        //  VISTA DE USUARIO
+        // VISTA DE USUARIO
         if (accesoSeleccionado == null) {
             LazyColumn(
                 modifier = modifier
@@ -247,7 +245,7 @@ fun MenuPrincipalScreen(
                     }
                 }
 
-                items(TiendaRepository.listaAccesos) { acceso ->
+                items(uiState.listaAccesos) { acceso ->
                     val esSeleccionado = accesoSeleccionado == acceso.id
 
                     Card(
@@ -288,6 +286,7 @@ fun MenuPrincipalScreen(
                 }
             }
         } else {
+            // Al seleccionar la puerta, se despliega el formulario de conteo en vivo para esa puerta
             FormularioConteoScreen(
                 puertaInicial = accesoSeleccionado!!,
                 modifier = modifier,

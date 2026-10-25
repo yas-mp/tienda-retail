@@ -159,6 +159,19 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                         isAdmin = isAdmin,
                         onIrAdminDashboard = {
                             navController.navigate(Rutas.ADMIN_DASHBOARD)
+                        },
+                        onIrPerfil = {
+                            navController.navigate(Rutas.PERFIL)},
+                        onCerrarSesion = {
+                            navController.popBackStack(Rutas.LOGIN, inclusive = false)}
+                    )
+                }
+
+                composable(Rutas.PERFIL) {
+                    PerfilScreen(
+                        isAdmin = isAdmin,
+                        onVolver = {
+                            navController.popBackStack()
                         }
                     )
                 }
@@ -192,12 +205,6 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                     )
                 }
 
-                composable(Rutas.PERFIL) {
-                    PerfilScreen(
-                        isAdmin = isAdmin,
-                        onVolver = { navController.popBackStack() }
-                    )
-                }
             }
         }
     }

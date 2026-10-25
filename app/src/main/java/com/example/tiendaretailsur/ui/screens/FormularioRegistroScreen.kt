@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,7 +40,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.tiendaretailsur.R
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.FormularioRegistroUiState
 import com.example.tiendaretailsur.model.RolUsuario
 import com.example.tiendaretailsur.ui.components.BotonPrincipal
@@ -56,18 +60,26 @@ import com.example.tiendaretailsur.viewmodel.FormularioRegistroViewModel
 
 @Composable
 fun FormularioRegistroScreen(
-    viewModel: FormularioRegistroViewModel = viewModel(),
+    dbHelper: UsuarioDbHelper = UsuarioDbHelper(LocalContext.current),
+    viewModel: FormularioRegistroViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { FormularioRegistroViewModel(dbHelper) }
+        }
+    ),
     onIrALoginClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     FormularioRegistroContent(
         uiState = uiState,
+        listaPreguntas = viewModel.listaPreguntasSeg,
         onRutCambia = viewModel::onRutCambia,
         onNombreCambia = viewModel::onNombreCambia,
         onCorreoCambia = viewModel::onCorreoCambia,
         onTelefonoCambia = viewModel::onTelefonoCambia,
         onContrasenaCambia = viewModel::onContrasenaCambia,
+        onPreguntaSeleccionada = viewModel::onPreguntaSeleccionada,
+        onRespuestaCambia = viewModel::onRespuestaCambia,
         onAlternarContrasenaVisible = viewModel::onAlternarContrasenaVisible,
         onSeleccionRol = viewModel::onSeleccionRol,
         onTerminosCambia = viewModel::onTerminosCambia,
@@ -81,13 +93,16 @@ fun FormularioRegistroScreen(
 @Composable
 fun FormularioRegistroContent(
     uiState: FormularioRegistroUiState,
+    listaPreguntas: List<String> = emptyList(),
     onRutCambia: (String) -> Unit,
     onNombreCambia: (String) -> Unit,
     onCorreoCambia: (String) -> Unit,
     onTelefonoCambia: (String) -> Unit,
     onContrasenaCambia: (String) -> Unit,
+    onPreguntaSeleccionada: (String) -> Unit = {},
+    onRespuestaCambia: (String) -> Unit = {},
     onAlternarContrasenaVisible: () -> Unit,
-    onSeleccionRol: (RolUsuario) -> Unit, // Agregado
+    onSeleccionRol: (RolUsuario) -> Unit,
     onTerminosCambia: (Boolean) -> Unit,
     onLimpiarFormulario: () -> Unit,
     onRegistrar: () -> Unit,
@@ -200,6 +215,58 @@ fun FormularioRegistroContent(
                 visible = uiState.contrasenaVisible,
                 onAlternarContrasenaVisible = onAlternarContrasenaVisible,
                 error = uiState.errorContrasena
+            )
+            Spacer(modifier = Modifier.height(Dimens.espacioInterno))
+
+            var preguntaAbierta by remember { mutableStateOf(false) }
+            Text(
+                text = "Pregunta de seguridad",
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Box(modifier = Modifier.fillMaxWidth()){
+                CampoTexto(
+                    valor = if (uiState.preguntaSeleccionada.isEmpty()) "Selecciona una pregunta" else uiState.preguntaSeleccionada,
+                    onValorCambia = {},
+                    etiqueta = "Pregunta de seguridad",
+                    icono = R.drawable.ic_persona,
+                    error = uiState.errorPregunta
+                )
+                Box(
+                    modifier = Modifier.matchParentSize()
+                        .clickable {preguntaAbierta = true}
+                )
+                DropdownMenu(
+                    expanded = preguntaAbierta,
+                    onDismissRequest = { preguntaAbierta = false},
+                    modifier = Modifier.fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    listaPreguntas.forEach { pregunta ->
+                        DropdownMenuItem(
+                            text = {Text(text = pregunta)},
+                            onClick = {
+                                onPreguntaSeleccionada(pregunta)
+                                preguntaAbierta = false
+                            }
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(Dimens.espacioInterno))
+
+            Text(
+                text = "Respuesta de seguridad",
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            CampoTexto(
+                valor = uiState.respuestaSeguridad,
+                onValorCambia = onRespuestaCambia,
+                etiqueta = "Tu respuesta",
+                icono = R.drawable.ic_persona,
+                error = uiState.errorRespuesta
             )
             Spacer(modifier = Modifier.height(Dimens.espacioInterno))
 

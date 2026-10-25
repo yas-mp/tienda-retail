@@ -19,16 +19,19 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.SeccionAjustesAdmin
 import com.example.tiendaretailsur.ui.screens.AdminDashboardScreen
 import com.example.tiendaretailsur.ui.screens.AjustesAdminScreen
@@ -61,10 +64,12 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
     var isAdmin by rememberSaveable { mutableStateOf(true) }
     var isDarkTheme by rememberSaveable { mutableStateOf(initialDarkTheme) }
 
+    val context = LocalContext.current
+    val dbHelper = remember { UsuarioDbHelper(context) }
+
     val navController = rememberNavController()
     val rutaActual = navController.currentBackStackEntryAsState().value?.destination?.route
 
-    // Ocultamos la barra de pruebas en las pantallas que ya tienen su propio TopAppBar
     val mostrarBarraPruebas = rutaActual !in listOf(
         Rutas.ADMIN_DASHBOARD,
         Rutas.AJUSTES,
@@ -118,7 +123,7 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                 composable(Rutas.LOGIN) {
                     LoginScreen(
                         onLoginSuccess = { usuarioAutenticado ->
-                            isAdmin = usuarioAutenticado.perfil in listOf("P-01", "P-02", "P-03")
+                            isAdmin = usuarioAutenticado.perfil in listOf("P-01", "P-02", "SUBGERENTE")
                             navController.navigate(Rutas.MENU_PRINCIPAL)
                         },
                         onOlvideContrasenaClick = {
@@ -140,6 +145,7 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
 
                 composable(Rutas.FORM_REGISTRO) {
                     FormularioRegistroScreen(
+                        dbHelper = dbHelper,
                         onIrALoginClick = {
                             navController.navigate(Rutas.LOGIN) {
                                 popUpTo(Rutas.LOGIN) { inclusive = true }
@@ -161,6 +167,7 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
 
                 composable(Rutas.ADMIN_DASHBOARD) {
                     AdminDashboardScreen(
+                        dbHelper = dbHelper,
                         onGestionUsuarios = { navController.navigate(Rutas.GESTION_USUARIOS) },
                         onAjustes = { navController.navigate(Rutas.AJUSTES) },
                         onCerrarSesionClick = {
@@ -169,7 +176,6 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                     )
                 }
 
-                // Opción "Gestionar Usuarios" del Drawer -> Abre Ajustes Admin en la pestaña Colaboradores
                 composable(Rutas.GESTION_USUARIOS) {
                     AjustesAdminScreen(
                         seccionInicial = SeccionAjustesAdmin.COLABORADORES,
@@ -178,7 +184,6 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                     )
                 }
 
-                // Opción "Ajustes" del Drawer -> Abre Ajustes Admin en la pestaña Perfiles App
                 composable(Rutas.AJUSTES) {
                     AjustesAdminScreen(
                         seccionInicial = SeccionAjustesAdmin.PERFILES,
@@ -187,7 +192,6 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                     )
                 }
 
-                // Pantalla de Foto y Perfil del Usuario/Admin
                 composable(Rutas.PERFIL) {
                     PerfilScreen(
                         isAdmin = isAdmin,

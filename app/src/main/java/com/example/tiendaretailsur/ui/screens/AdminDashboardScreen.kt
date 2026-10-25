@@ -52,6 +52,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.AdminDashboardUiState
 import com.example.tiendaretailsur.model.DatoGrafico
 import com.example.tiendaretailsur.model.SesionResumen
@@ -62,7 +65,12 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AdminDashboardScreen(
-    adminViewModel: AdminDashboardViewModel = viewModel(),
+    dbHelper: UsuarioDbHelper,
+    adminViewModel: AdminDashboardViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { AdminDashboardViewModel(dbHelper) }
+        }
+    ),
     usuarioViewModel: UsuarioViewModel = viewModel(),
     onGestionUsuarios: () -> Unit = {},
     onAjustes: () -> Unit = {},
@@ -73,7 +81,7 @@ fun AdminDashboardScreen(
 
     AdminDashboardContent(
         uiState = uiState,
-        nombreUsuario = usuarioActual?.nombre ?: "Subgerente",
+        nombreUsuario = usuarioActual?.nombreCompleto ?: "Subgerente",
         onGestionUsuarios = onGestionUsuarios,
         onAjustes = onAjustes,
         onCerrarSesion = {
@@ -219,9 +227,16 @@ fun AdminDashboardContent(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
+                val totalSegmentos = uiState.segmentacion.sumOf { it.valor }.coerceAtLeast(1)
+                val transitoVal = uiState.segmentacion.find { it.etiqueta.contains("Tránsito") }?.valor ?: 0
+                val clientesVal = uiState.segmentacion.find { it.etiqueta.contains("Clientes") }?.valor ?: 0
+
+                val pctTransito = transitoVal.toFloat() / totalSegmentos
+                val pctClientes = clientesVal.toFloat() / totalSegmentos
+
                 MetricasDeFlujo(
-                    clientes = 0.54f,
-                    visita = 0.46f
+                    clientes = if (totalSegmentos > 1) pctTransito else 0.5f,
+                    visita = if (totalSegmentos > 1) pctClientes else 0.5f
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -450,7 +465,7 @@ fun MetricasDeFlujo(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = "Acceso A4",
+                        text = "General",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)

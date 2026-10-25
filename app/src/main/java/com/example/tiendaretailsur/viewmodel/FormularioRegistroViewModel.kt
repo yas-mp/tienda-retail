@@ -1,6 +1,7 @@
 package com.example.tiendaretailsur.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.FormularioRegistroUiState
 import com.example.tiendaretailsur.model.RolUsuario
 import com.example.tiendaretailsur.model.UsuarioRepository
@@ -9,10 +10,30 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class FormularioRegistroViewModel : ViewModel() {
+class FormularioRegistroViewModel(
+    private val dbHelper: UsuarioDbHelper
+) : ViewModel() {
     private val _uiState = MutableStateFlow(FormularioRegistroUiState())
     val uiState: StateFlow<FormularioRegistroUiState> = _uiState.asStateFlow()
 
+    val listaPreguntasSeg = listOf(
+        "¿Cuál es el nombre de tu primera mascota?",
+        "¿En qué ciudad nacieron tus padres?",
+        "¿Cuál es tu deporte o pasatiempo favorito?",
+        "¿Cuál fue el nombre de tu primera escuela?"
+    )
+
+    fun onPreguntaSeleccionada(pregunta: String) {
+        _uiState.update {
+            it.copy(preguntaSeleccionada = pregunta, errorPregunta = null, registroExitoso = false)
+        }
+    }
+
+    fun onRespuestaCambia(respuesta: String) {
+        _uiState.update {
+            it.copy(respuestaSeguridad = respuesta, errorRespuesta = null, registroExitoso = false)
+        }
+    }
     fun onRutCambia(nuevoRut: String) {
         val rutFormateado = autoCompletadoRut(nuevoRut)
         _uiState.update {
@@ -76,6 +97,9 @@ class FormularioRegistroViewModel : ViewModel() {
         val errorContrasena = validarContrasena(estado.contrasena)
         val errorTerminos = if (!estado.aceptarTerminos) "Debes aceptar los términos" else null
 
+        val errorPregunta = if (estado.preguntaSeleccionada.isBlank()) "Selecciona una pregunta de seguridad" else null
+        val errorRespuesta = if (estado.respuestaSeguridad.isBlank()) "Ingresa tu respuesta de seguridad" else null
+
         val siHayErrores = listOf(
             errorRut,
             errorNombre,
@@ -85,7 +109,13 @@ class FormularioRegistroViewModel : ViewModel() {
             errorTerminos
         ).any { it != null }
 
-        // Guarda el nuevo usuario en el repositorio si no hay errores ---
+        var guardar = false
+
+        if (!siHayErrores) {
+            val resultado = dbHelper.registroUsuarioFormularioRegistro(estado)
+            guardar = resultado != -1L
+        }
+
         if (!siHayErrores) {
             UsuarioRepository.registrarNuevoUsuario(
                 rut = estado.rut,
@@ -95,7 +125,6 @@ class FormularioRegistroViewModel : ViewModel() {
                 contrasenaPlana = estado.contrasena
             )
         }
-        // ----------------------------------------------------------------------------------
 
         _uiState.update {
             it.copy(
@@ -105,7 +134,9 @@ class FormularioRegistroViewModel : ViewModel() {
                 errorTelefono = errorTelefono,
                 errorContrasena = errorContrasena,
                 errorTerminos = errorTerminos,
-                registroExitoso = !siHayErrores
+                errorPregunta = errorPregunta,
+                errorRespuesta = errorRespuesta,
+                registroExitoso = guardar
             )
         }
     }

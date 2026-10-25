@@ -1,14 +1,14 @@
 package com.example.tiendaretailsur.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.tiendaretailsur.data.GraficoRepository
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class GraficosViewModel(
-    private val graficoRepository: GraficoRepository = GraficoRepository()
+    private val dbHelper: UsuarioDbHelper
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(GraficosUiState())
@@ -21,18 +21,14 @@ class GraficosViewModel(
     private fun cargarDatosGrafico() {
         _uiState.update { estadoActual ->
             estadoActual.copy(
-                flujoPorHora = graficoRepository.obtenerFlujoPorHora(),
-                segmentacion = graficoRepository.obtenerSegmentacion(),
+                flujoPorHora = dbHelper.obtenerFlujoPorHora(),
+                segmentacion = dbHelper.obtenerSegmentacion(),
                 estaCargando = false
             )
         }
     }
 
     fun recargarDatos() {
-        _uiState.update { estadoActual ->
-            estadoActual.copy(
-                flujoPorHora = graficoRepository.actualizarDatos()
-            )
-        }
+        cargarDatosGrafico()
     }
 }

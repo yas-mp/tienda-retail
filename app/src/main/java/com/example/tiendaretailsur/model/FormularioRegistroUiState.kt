@@ -10,6 +10,9 @@ data class FormularioRegistroUiState(
     val esActivo: Boolean = false,
     val aceptarTerminos: Boolean = false,
 
+    val preguntaSeleccionada: String = "",
+    val respuestaSeguridad: String = "",
+
     val contrasenaVisible: Boolean = false,
     val errorFormatoRut: String? = null,
     val errorNombre: String? = null,
@@ -18,6 +21,9 @@ data class FormularioRegistroUiState(
     val errorTelefono: String? = null,
     val errorContrasena: String? = null,
     val errorTerminos: String? = null,
+
+    val errorPregunta: String? = null,
+    val errorRespuesta: String? = null,
 
     val registroExitoso: Boolean = false
 )

@@ -1,5 +1,6 @@
 package com.example.tiendaretailsur.ui.components
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,19 +18,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tiendaretailsur.R
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 
 @Composable
 fun UserHeader(
     userName: String = "Andrea",
     title: String = "Menú principal",
-    initials: String = "AM",
+    avatarBytes: ByteArray? = null,
     modifier: Modifier = Modifier
 ) {
+    val bitmap = avatarBytes?.let { bytes ->
+        try {
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -53,20 +64,12 @@ fun UserHeader(
             )
         }
 
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = initials,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
+        AvatarCircular(
+            imagen = R.drawable.ic_persona,
+            descripcion = "Avatar del usuario",
+            foto = bitmap,
+            modifier = Modifier.size(56.dp)
+        )
     }
 }
 

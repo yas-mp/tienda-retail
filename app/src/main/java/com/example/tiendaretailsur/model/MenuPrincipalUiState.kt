@@ -37,7 +37,9 @@ data class MenuPrincipalUiState(
     val totalIngresosCuatroPuertas: Int = 0,
     val porcentajeTransito: Float = 0f,
     val porcentajeClientes: Float = 0f,
-    val conteosPorPuerta: Map<String, Int> = emptyMap()
+    val conteosPorPuerta: Map<String, Int> = emptyMap(),
+    val avatarBytes: ByteArray? = null
+
 )
 
 

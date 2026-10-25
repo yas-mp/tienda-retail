@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +67,10 @@ fun MenuPrincipalScreen(
     onIrPerfil: () -> Unit = {},
     onCerrarSesion: () -> Unit = {}
 ) {
+    LaunchedEffect(isAdmin) {
+        viewModel.cargarDatosDesdeDb(isAdmin)
+    }
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -153,9 +158,9 @@ fun MenuPrincipalScreen(
                 )
             }
         ) { innerPadding ->
-            // Usando un 'if' tal como indica el profesor para definir qué se ve según el rol (Admin vs Usuario/Colaborador)
+
             if (isAdmin) {
-                // ================= VISTA DE ADMINISTRADOR =================
+                //  VISTA DE ADMINISTRADOR
                 LazyColumn(
                     modifier = modifier
                         .fillMaxSize()
@@ -164,10 +169,14 @@ fun MenuPrincipalScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        UserHeader(userName = "Andrea", title = "Menú Principal", initials = "AM")
+                        UserHeader(
+                            userName = "Administrador",
+                            title = "Menú Principal",
+                            avatarBytes = uiState.avatarBytes
+                        )
                     }
 
-                    // BÁNER: Total de ingresos de las 4 puertas y porcentajes
+                    // baner: Total de ingresos de las 4 puertas y porcentajes
                     item {
                         Card(
                             colors = CardDefaults.cardColors(
@@ -294,7 +303,7 @@ fun MenuPrincipalScreen(
                         }
                     }
 
-                    // Botón para ver el Panel Avanzado (Admin Dashboard) al final
+                    // boton para ver el Panel Avanzado
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
@@ -313,7 +322,7 @@ fun MenuPrincipalScreen(
                     }
                 }
             } else {
-                // ================= VISTA DE USUARIO / COLABORADOR =================
+                //  VISTA DE USUARIO
                 if (accesoSeleccionado == null) {
                     LazyColumn(
                         modifier = modifier
@@ -323,7 +332,11 @@ fun MenuPrincipalScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         item {
-                            UserHeader(userName = "Colaborador", title = "Selección de Acceso", initials = "CO")
+                            UserHeader(
+                                userName = "Colaborador",
+                                title = "Selección de Acceso",
+                                avatarBytes = uiState.avatarBytes
+                            )
                         }
 
                         item {
@@ -393,7 +406,7 @@ fun MenuPrincipalScreen(
                         }
                     }
                 } else {
-                    // Al seleccionar la puerta, se despliega el formulario de conteo en vivo para esa puerta
+                    // selecciona puerta -> abre formulario
                     Box(modifier = Modifier.padding(innerPadding)) {
                         FormularioConteoScreen(
                             puertaInicial = accesoSeleccionado!!,

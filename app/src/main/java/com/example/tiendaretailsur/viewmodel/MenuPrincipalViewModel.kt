@@ -29,7 +29,7 @@ class MenuPrincipalViewModel : AndroidViewModel {
         cargarDatosDesdeDb()
     }
 
-    fun cargarDatosDesdeDb() {
+    fun cargarDatosDesdeDb(isAdmin: Boolean = true) {
         val conteos = try {
             dbHelper?.listarConteos() ?: emptyList()
         } catch (e: Exception) {
@@ -42,6 +42,20 @@ class MenuPrincipalViewModel : AndroidViewModel {
             emptyList()
         }
         val listaAccesosFinal = if (puertas.isNotEmpty()) puertas else emptyList()
+
+        val usuario = try {
+            if (isAdmin) {
+                dbHelper?.autenticarUsuario("andrea.valencia@tiendaretailsur.cl", "1234")
+                    ?: dbHelper?.autenticarUsuario("admin@rincondelsur.cl", "1234")
+            } else {
+                dbHelper?.autenticarUsuario("juan@tiendaretailsur.cl", "1234")
+                    ?: dbHelper?.autenticarUsuario("juan@rincondelsur.cl", "1234")
+            }
+        } catch (e: Exception) {
+            null
+        }
+
+        val avatarReal = usuario?.avatar
 
         if (conteos.isEmpty() && dbHelper == null) {
             _uiState.update {
@@ -56,7 +70,8 @@ class MenuPrincipalViewModel : AndroidViewModel {
                     totalIngresosCuatroPuertas = 470,
                     porcentajeTransito = 60.0f,
                     porcentajeClientes = 40.0f,
-                    conteosPorPuerta = mapOf("A1" to 205, "A2" to 115, "A3" to 68, "A4" to 82)
+                    conteosPorPuerta = mapOf("A1" to 205, "A2" to 115, "A3" to 68, "A4" to 82),
+                    avatarBytes = avatarReal
                 )
             }
             return
@@ -79,7 +94,8 @@ class MenuPrincipalViewModel : AndroidViewModel {
                 totalIngresosCuatroPuertas = totalIngresos,
                 porcentajeTransito = String.format(Locale.getDefault(), "%.1f", porcentajeT).toFloat(),
                 porcentajeClientes = String.format(Locale.getDefault(), "%.1f", porcentajeC).toFloat(),
-                conteosPorPuerta = conteosPorPuerta
+                conteosPorPuerta = conteosPorPuerta,
+                avatarBytes = avatarReal
             )
         }
     }

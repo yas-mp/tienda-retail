@@ -29,11 +29,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.tiendaretailsur.model.SeccionAjustesAdmin
 import com.example.tiendaretailsur.ui.screens.AdminDashboardScreen
+import com.example.tiendaretailsur.ui.screens.AjustesAdminScreen
 import com.example.tiendaretailsur.ui.screens.FormularioConteoScreen
 import com.example.tiendaretailsur.ui.screens.FormularioRegistroScreen
 import com.example.tiendaretailsur.ui.screens.LoginScreen
 import com.example.tiendaretailsur.ui.screens.MenuPrincipalScreen
+import com.example.tiendaretailsur.ui.screens.PerfilScreen
 import com.example.tiendaretailsur.ui.screens.RecuperarContrasenaScreen
 import com.example.tiendaretailsur.ui.theme.CardOscura
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
@@ -49,6 +52,7 @@ object Rutas {
     const val ADMIN_DASHBOARD = "admin_dashboard"
     const val GESTION_USUARIOS = "gestion_usuarios"
     const val AJUSTES = "ajustes"
+    const val PERFIL = "perfil"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,8 +64,13 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
     val navController = rememberNavController()
     val rutaActual = navController.currentBackStackEntryAsState().value?.destination?.route
 
-    // El dashboard y el Login ya traen su propio diseño, la barra de pruebas se oculta allí
-    val mostrarBarraPruebas = rutaActual != Rutas.ADMIN_DASHBOARD
+    // Ocultamos la barra de pruebas en las pantallas que ya tienen su propio TopAppBar
+    val mostrarBarraPruebas = rutaActual !in listOf(
+        Rutas.ADMIN_DASHBOARD,
+        Rutas.AJUSTES,
+        Rutas.GESTION_USUARIOS,
+        Rutas.PERFIL
+    )
 
     val navContainerColor = CardOscura
     val unselectedColor = TextoOscuro
@@ -101,17 +110,15 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Rutas.LOGIN, // ----------------- CAMBIO AL LOGIN COMO INICIO -----------------
+                startDestination = Rutas.LOGIN,
                 modifier = if (mostrarBarraPruebas) Modifier.padding(innerPadding) else Modifier
             ) {
                 composable(Rutas.PRUEBAS) { PantallaPruebas(navController) }
 
-                // ----------------- PANTALLAS CONECTADAS -----------------
                 composable(Rutas.LOGIN) {
                     LoginScreen(
                         onLoginSuccess = { usuarioAutenticado ->
-                            // Aquí más adelante verificaremos si el usuarioAutenticado es P-01 (Admin) o P-04 (Vendedor)
-                            // Por ahora, navegamos al menú principal al ingresar correctamente.
+                            isAdmin = usuarioAutenticado.perfil in listOf("P-01", "P-02", "P-03")
                             navController.navigate(Rutas.MENU_PRINCIPAL)
                         },
                         onOlvideContrasenaClick = {
@@ -126,7 +133,7 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                 composable(Rutas.RECUPERAR_CONTRASENA) {
                     RecuperarContrasenaScreen(
                         onVolverALoginClick = {
-                            navController.popBackStack() // Cierra recuperación y vuelve al Login
+                            navController.popBackStack()
                         }
                     )
                 }
@@ -135,27 +142,58 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                     FormularioRegistroScreen(
                         onIrALoginClick = {
                             navController.navigate(Rutas.LOGIN) {
-                                popUpTo(Rutas.LOGIN) { inclusive = true } // Evita que se acumulen pantallas
+                                popUpTo(Rutas.LOGIN) { inclusive = true }
                             }
                         }
                     )
                 }
-                // --------------------------------------------------------
 
-                composable(Rutas.MENU_PRINCIPAL) { MenuPrincipalScreen(isAdmin = isAdmin) }
+                composable(Rutas.MENU_PRINCIPAL) {
+                    MenuPrincipalScreen(
+                        isAdmin = isAdmin,
+                        onIrAdminDashboard = {
+                            navController.navigate(Rutas.ADMIN_DASHBOARD)
+                        }
+                    )
+                }
+
                 composable(Rutas.FORM_CONTEO) { FormularioConteoScreen() }
 
                 composable(Rutas.ADMIN_DASHBOARD) {
                     AdminDashboardScreen(
                         onGestionUsuarios = { navController.navigate(Rutas.GESTION_USUARIOS) },
                         onAjustes = { navController.navigate(Rutas.AJUSTES) },
-                        onCerrarSesionClick = { navController.popBackStack(Rutas.LOGIN, inclusive = false) }
+                        onCerrarSesionClick = {
+                            navController.popBackStack(Rutas.LOGIN, inclusive = false)
+                        }
                     )
                 }
 
-                // Pantallas que aún no existen
-                composable(Rutas.GESTION_USUARIOS) { PantallaPendiente("Gestión de usuarios") }
-                composable(Rutas.AJUSTES) { PantallaPendiente("Ajustes") }
+                // Opción "Gestionar Usuarios" del Drawer -> Abre Ajustes Admin en la pestaña Colaboradores
+                composable(Rutas.GESTION_USUARIOS) {
+                    AjustesAdminScreen(
+                        seccionInicial = SeccionAjustesAdmin.COLABORADORES,
+                        onVolverClick = { navController.popBackStack() },
+                        onIrAMiPerfilClick = { navController.navigate(Rutas.PERFIL) }
+                    )
+                }
+
+                // Opción "Ajustes" del Drawer -> Abre Ajustes Admin en la pestaña Perfiles App
+                composable(Rutas.AJUSTES) {
+                    AjustesAdminScreen(
+                        seccionInicial = SeccionAjustesAdmin.PERFILES,
+                        onVolverClick = { navController.popBackStack() },
+                        onIrAMiPerfilClick = { navController.navigate(Rutas.PERFIL) }
+                    )
+                }
+
+                // Pantalla de Foto y Perfil del Usuario/Admin
+                composable(Rutas.PERFIL) {
+                    PerfilScreen(
+                        isAdmin = isAdmin,
+                        onVolver = { navController.popBackStack() }
+                    )
+                }
             }
         }
     }
@@ -170,8 +208,9 @@ private fun PantallaPruebas(navController: NavHostController) {
         "Formulario de registro" to Rutas.FORM_REGISTRO,
         "Recuperar contraseña" to Rutas.RECUPERAR_CONTRASENA,
         "Dashboard admin" to Rutas.ADMIN_DASHBOARD,
-        "Gestión de usuarios (pendiente)" to Rutas.GESTION_USUARIOS,
-        "Ajustes (pendiente)" to Rutas.AJUSTES
+        "Gestión de usuarios" to Rutas.GESTION_USUARIOS,
+        "Ajustes de administrador" to Rutas.AJUSTES,
+        "Mi Perfil (Foto/Cámara)" to Rutas.PERFIL
     )
     Column(
         modifier = Modifier
@@ -189,16 +228,5 @@ private fun PantallaPruebas(navController: NavHostController) {
                 Text(nombre)
             }
         }
-    }
-}
-
-@Composable
-private fun PantallaPendiente(nombre: String) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("$nombre\n(por desarrollar)", style = MaterialTheme.typography.titleMedium)
     }
 }

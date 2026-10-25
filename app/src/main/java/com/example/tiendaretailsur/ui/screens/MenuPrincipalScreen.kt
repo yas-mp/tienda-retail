@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -37,14 +38,15 @@ import com.example.tiendaretailsur.viewmodel.MenuPrincipalViewModel
 fun MenuPrincipalScreen(
     isAdmin: Boolean = true,
     modifier: Modifier = Modifier,
-    viewModel: MenuPrincipalViewModel = viewModel()
+    viewModel: MenuPrincipalViewModel = viewModel(),
+    onIrAdminDashboard: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val ultimoResumen = uiState.ultimoResumen
     var accesoSeleccionado by remember { mutableStateOf<String?>(null) }
 
     if (isAdmin) {
-        //  VISTA DE ADMINISTRADOR
+        // VISTA DE ADMINISTRADOR
         LazyColumn(
             modifier = modifier
                 .fillMaxSize()
@@ -55,7 +57,7 @@ fun MenuPrincipalScreen(
                 UserHeader(userName = "Andrea", title = "Menú Principal", initials = "AM")
             }
 
-            // Baner: Total de ingresos de las 4 puertas y porcentajes
+            // baner: Total de ingresos de las 4 puertas y porcentajes
             item {
                 Card(
                     colors = CardDefaults.cardColors(
@@ -187,9 +189,27 @@ fun MenuPrincipalScreen(
                     }
                 }
             }
+
+            // Botón para ver el Panel
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = onIrAdminDashboard,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text(
+                        text = "Ver Panel ",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     } else {
-        // VISTA DE USUARIO
+        //  VISTA DE USUARIO
         if (accesoSeleccionado == null) {
             LazyColumn(
                 modifier = modifier
@@ -198,7 +218,7 @@ fun MenuPrincipalScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item {
-                    UserHeader(userName = "Usuario", title = "Selección de Acceso", initials = "US")
+                    UserHeader(userName = "Colaborador", title = "Selección de Acceso", initials = "CO")
                 }
 
                 item {
@@ -228,12 +248,14 @@ fun MenuPrincipalScreen(
                 }
 
                 items(TiendaRepository.listaAccesos) { acceso ->
+                    val esSeleccionado = accesoSeleccionado == acceso.id
+
                     Card(
                         onClick = { accesoSeleccionado = acceso.id },
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.onSurface
+                            containerColor = if (esSeleccionado) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                            contentColor = if (esSeleccionado) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
                         )
                     ) {
                         Row(
@@ -256,15 +278,16 @@ fun MenuPrincipalScreen(
                                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                                 )
                             }
-                            Button(onClick = { accesoSeleccionado = acceso.id }) {
-                                Text("Iniciar Conteo")
+                            if (esSeleccionado) {
+                                Badge(containerColor = MaterialTheme.colorScheme.primary) {
+                                    Text("Seleccionado", color = MaterialTheme.colorScheme.onPrimary)
+                                }
                             }
                         }
                     }
                 }
             }
         } else {
-            // Al seleccionar la puerta se va al formulario
             FormularioConteoScreen(
                 puertaInicial = accesoSeleccionado!!,
                 modifier = modifier,

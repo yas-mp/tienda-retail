@@ -64,7 +64,7 @@ private fun AppAdminOscuroPreview() {
     NavegacionApp(initialDarkTheme = true)
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "6.- Usuario - Claro")
+@Preview(showBackground = true, showSystemUi = true, name = "6.- Menu Pricnipal Usuario - Claro")
 @Composable
 private fun ColaboradorClaroPreview() {
     MiRegistroTheme(darkTheme = false) {
@@ -74,7 +74,7 @@ private fun ColaboradorClaroPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "7.- Usuario - Oscuro")
+@Preview(showBackground = true, showSystemUi = true, name = "7.- Menu Pricnipal Usuario - Oscuro")
 @Composable
 private fun ColaboradorOscuroPreview() {
     MiRegistroTheme(darkTheme = true) {
@@ -83,8 +83,27 @@ private fun ColaboradorOscuroPreview() {
         }
     }
 }
+@Preview(showBackground = true, showSystemUi = true, name = "8.- Menu Principal Admin - Claro")
+@Composable
+private fun MenuPrincipalAdminClaroPreview() {
+    MiRegistroTheme(darkTheme = false) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            MenuPrincipalScreen(isAdmin = true)
+        }
+    }
+}
 
-@Preview(showBackground = true, showSystemUi = true, name = "8.- Dashboard - Claro")
+@Preview(showBackground = true, showSystemUi = true, name = "9.- Menu Principal Admin - Oscuro")
+@Composable
+private fun MenuPrincipalAdminOscuroPreview() {
+    MiRegistroTheme(darkTheme = true) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            MenuPrincipalScreen(isAdmin = true)
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true, name = "10.- Dashboard - Claro")
 @Composable
 private fun AdminDashBoardClaroPreview() {
     MiRegistroTheme(darkTheme = false) {
@@ -95,7 +114,7 @@ private fun AdminDashBoardClaroPreview() {
 }
 
 
-@Preview(showBackground = true, showSystemUi = true, name = "9.- Perfil - Claro")
+@Preview(showBackground = true, showSystemUi = true, name = "11.- Perfil - Claro")
 @Composable
 private fun PerfilClaroPreview() {
     MiRegistroTheme(darkTheme = false) {
@@ -105,7 +124,7 @@ private fun PerfilClaroPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "10.- Perfil - Oscuro")
+@Preview(showBackground = true, showSystemUi = true, name = "12.- Perfil - Oscuro")
 @Composable
 private fun PerfilOscuroPreview() {
     MiRegistroTheme(darkTheme = true) {
@@ -116,7 +135,7 @@ private fun PerfilOscuroPreview() {
 }
 
 
-@Preview(showBackground = true, showSystemUi = true, name = "11.- Perfil Admin - Claro")
+@Preview(showBackground = true, showSystemUi = true, name = "13.- Perfil Admin - Claro")
 @Composable
 private fun PerfilAdminClaroPreview() {
     MiRegistroTheme(darkTheme = false) {
@@ -126,7 +145,7 @@ private fun PerfilAdminClaroPreview() {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, name = "12.- Perfil Admin - Oscuro")
+@Preview(showBackground = true, showSystemUi = true, name = "14.- Perfil Admin - Oscuro")
 @Composable
 private fun PerfilAdminOscuroPreview() {
     MiRegistroTheme(darkTheme = true) {

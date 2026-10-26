@@ -74,20 +74,22 @@ import com.example.tiendaretailsur.ui.theme.Exito
 import com.example.tiendaretailsur.ui.theme.ExitoFondo
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 import com.example.tiendaretailsur.viewmodel.AjustesAdminViewModel
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AjustesAdminScreen(
-    dbHelper: UsuarioDbHelper,
+    dbHelper: UsuarioDbHelper? = null,
     seccionInicial: SeccionAjustesAdmin = SeccionAjustesAdmin.COLABORADORES,
-    viewModel: AjustesAdminViewModel = viewModel(
-        factory = viewModelFactory {
-            initializer { AjustesAdminViewModel(dbHelper) }
-        }
-    ),
     onVolverClick: () -> Unit = {},
     onIrAMiPerfilClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val helper = remember(dbHelper) { dbHelper ?: UsuarioDbHelper(context) }
+    val viewModel = remember(helper) { AjustesAdminViewModel(helper) }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(seccionInicial) {

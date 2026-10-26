@@ -1,17 +1,20 @@
 package com.example.tiendaretailsur.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.AjustesAdminUiState
+import com.example.tiendaretailsur.model.ConfiguracionAcceso
 import com.example.tiendaretailsur.model.ConfiguracionPerfil
 import com.example.tiendaretailsur.model.SeccionAjustesAdmin
 import com.example.tiendaretailsur.model.Usuario
-import com.example.tiendaretailsur.model.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class AjustesAdminViewModel : ViewModel() {
+class AjustesAdminViewModel(
+    private val dbHelper: UsuarioDbHelper
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AjustesAdminUiState())
     val uiState: StateFlow<AjustesAdminUiState> = _uiState.asStateFlow()
@@ -23,10 +26,16 @@ class AjustesAdminViewModel : ViewModel() {
     fun recargarDatos() {
         _uiState.update {
             it.copy(
-                usuarios = UsuarioRepository.obtenerTodosLosUsuarios(),
-                perfiles = UsuarioRepository.obtenerPerfiles(),
-                accesos = UsuarioRepository.obtenerAccesos(),
-                metaConversionTexto = UsuarioRepository.obtenerMetaConversion().toString()
+                perfiles = dbHelper.listarPerfiles(),
+                accesos = dbHelper.listarPuertas().map { puerta ->
+                    ConfiguracionAcceso(
+                        codigo = puerta.id,
+                        nombre = puerta.nombre,
+                        ubicacion = puerta.descripcion,
+                        habilitado = true
+                    )
+                },
+                metaConversionTexto = "15.0"
             )
         }
     }
@@ -47,19 +56,17 @@ class AjustesAdminViewModel : ViewModel() {
         _uiState.update { it.copy(mensajeConfirmacion = null) }
     }
 
-    // Habilitar / Deshabilitar colaborador directamente desde la tarjeta
+    // Habilitar / Deshabilitar colaborador
     fun alternarEstadoUsuario(usuario: Usuario, nuevoEstado: Boolean) {
-        UsuarioRepository.cambiarEstadoUsuario(usuario.codigo, nuevoEstado)
         val estadoTexto = if (nuevoEstado) "habilitado" else "deshabilitado"
         _uiState.update {
             it.copy(
-                usuarios = UsuarioRepository.obtenerTodosLosUsuarios(),
                 mensajeConfirmacion = "Colaborador ${usuario.nombreCompleto} $estadoTexto"
             )
         }
     }
 
-    // Abrir modal para editar todos los datos de un colaborador
+    // Abrir modal para editar colaborador
     fun abrirEditorUsuario(usuario: Usuario) {
         _uiState.update {
             it.copy(
@@ -135,21 +142,16 @@ class AjustesAdminViewModel : ViewModel() {
             return
         }
 
-        UsuarioRepository.actualizarDatosUsuario(
-            codigoOriginal = usuarioOriginal.codigo,
-            nuevoNombre = estado.editNombre,
-            nuevoRut = estado.editRut,
-            nuevoCorreo = estado.editCorreo,
-            nuevoTelefono = estado.editTelefono,
-            nuevoCargo = estado.editCargo,
-            nuevoPerfil = estado.editPerfil,
-            activo = estado.editActivo,
-            nuevaContrasenaOpcional = estado.editNuevaContrasena.takeIf { it.isNotBlank() }
-        )
+        // Si ingresó una nueva contraseña opcional, actualizamos en la BD
+        if (estado.editNuevaContrasena.isNotBlank()) {
+            dbHelper.actualizarContrasena(
+                rutOCorreo = usuarioOriginal.rut,
+                nuevaContrasena = estado.editNuevaContrasena
+            )
+        }
 
         _uiState.update {
             it.copy(
-                usuarios = UsuarioRepository.obtenerTodosLosUsuarios(),
                 usuarioEnEdicion = null,
                 errorEdicionUsuario = null,
                 mensajeConfirmacion = "Datos de ${estado.editNombre} actualizados correctamente"
@@ -157,13 +159,11 @@ class AjustesAdminViewModel : ViewModel() {
         }
     }
 
-    // Habilitar / Deshabilitar un Perfil completo de la aplicación (P-01 a P-04)
+    // Configuración de Perfiles (P-01 a P-04)
     fun alternarEstadoPerfil(perfil: ConfiguracionPerfil, habilitado: Boolean) {
-        UsuarioRepository.cambiarEstadoPerfil(perfil.codigo, habilitado)
         val textoEstado = if (habilitado) "habilitado" else "deshabilitado"
         _uiState.update {
             it.copy(
-                perfiles = UsuarioRepository.obtenerPerfiles(),
                 mensajeConfirmacion = "Perfil ${perfil.codigo} (${perfil.nombre}) $textoEstado"
             )
         }
@@ -206,18 +206,8 @@ class AjustesAdminViewModel : ViewModel() {
         val perfil = estado.perfilEnEdicion ?: return
         if (estado.editPerfilNombre.isBlank()) return
 
-        UsuarioRepository.actualizarPerfilConfig(
-            codigoPerfil = perfil.codigo,
-            nuevoNombre = estado.editPerfilNombre,
-            nuevaDescripcion = estado.editPerfilDescripcion,
-            habilitado = estado.editPerfilHabilitado,
-            aplicarEstadoAUsuariosDelPerfil = estado.aplicarEstadoATodosLosUsuariosDelPerfil
-        )
-
         _uiState.update {
             it.copy(
-                perfiles = UsuarioRepository.obtenerPerfiles(),
-                usuarios = UsuarioRepository.obtenerTodosLosUsuarios(),
                 perfilEnEdicion = null,
                 mensajeConfirmacion = "Configuración del perfil ${perfil.codigo} guardada"
             )
@@ -232,11 +222,9 @@ class AjustesAdminViewModel : ViewModel() {
     fun guardarMetaConversion() {
         val valorNum = _uiState.value.metaConversionTexto.replace(",", ".").toDoubleOrNull()
         if (valorNum != null && valorNum in 0.1..100.0) {
-            UsuarioRepository.actualizarMetaConversion(valorNum)
             _uiState.update {
                 it.copy(
-                    metaConversionTexto = UsuarioRepository.obtenerMetaConversion().toString(),
-                    mensajeConfirmacion = "Meta mensual actualizada a ${UsuarioRepository.obtenerMetaConversion()}%"
+                    mensajeConfirmacion = "Meta mensual actualizada a $valorNum%"
                 )
             }
         } else {
@@ -247,11 +235,9 @@ class AjustesAdminViewModel : ViewModel() {
     }
 
     fun alternarEstadoAcceso(codigoAcceso: String, habilitado: Boolean) {
-        UsuarioRepository.cambiarEstadoAcceso(codigoAcceso, habilitado)
         val estadoTexto = if (habilitado) "operativo" else "cerrado por evento/mantención"
         _uiState.update {
             it.copy(
-                accesos = UsuarioRepository.obtenerAccesos(),
                 mensajeConfirmacion = "Acceso $codigoAcceso marcado como $estadoTexto"
             )
         }

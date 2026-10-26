@@ -75,7 +75,7 @@ fun AdminDashboardScreen(
     onGestionUsuarios: () -> Unit = {},
     onAjustes: () -> Unit = {},
     onCerrarSesionClick: () -> Unit = {}
-){
+) {
     val uiState by adminViewModel.uiState.collectAsStateWithLifecycle()
     val usuarioActual by usuarioViewModel.usuarioActual.collectAsStateWithLifecycle()
 
@@ -99,7 +99,7 @@ fun AdminDashboardContent(
     onGestionUsuarios: () -> Unit = {},
     onAjustes: () -> Unit = {},
     onCerrarSesion: () -> Unit = {}
-){
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -184,7 +184,7 @@ fun AdminDashboardContent(
                             Text(
                                 text = "Bienvenido, $nombreUsuario",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onBackground
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     },
@@ -246,7 +246,8 @@ fun AdminDashboardContent(
                 Text(
                     text = "Historial Reciente de Conteos",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -267,14 +268,14 @@ fun TarjetaResumen(
     valor: String,
     icono: ImageVector,
     modifier: Modifier = Modifier
-){
+) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ){
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Icon(
                 imageVector = icono,
@@ -301,11 +302,7 @@ fun TarjetaResumen(
 fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
     val coloresBarras = listOf(
         Color(0xFF2196F3),
-        Color(0xFFFF9800),
-        Color(0xFF00BFA5),
-        Color(0xFFE91E63),
-        Color(0xFF7C4DFF),
-        Color(0xFF00BCD4)
+        Color(0xFFFF9800)
     )
 
     val total = datos.sumOf { it.valor }
@@ -318,7 +315,7 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Panel de Gráficos",
+                text = "Flujo por Turno",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -326,7 +323,7 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFECE6F0)),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFF)),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -349,13 +346,13 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
                                     text = "${dato.valor}",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.DarkGray
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
 
                                 Box(
                                     modifier = Modifier
-                                        .width(28.dp)
+                                        .width(48.dp)
                                         .fillMaxHeight((dato.valor / valorMaximo).coerceIn(0.15f, 1f))
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(colorBarra)
@@ -365,7 +362,7 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
                     }
 
                     HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 4.dp),
+                        modifier = Modifier.padding(vertical = 8.dp),
                         color = Color.Gray
                     )
 
@@ -376,8 +373,9 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
                         datos.forEach { dato ->
                             Text(
                                 text = dato.etiqueta,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.DarkGray
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -388,7 +386,7 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
                         text = "Total: $total",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -417,7 +415,7 @@ fun ItemSesionResumen(sesion: SesionResumen) {
                     text = sesion.observador,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Text(
                     text = "${sesion.conteo} personas • ${sesion.hora}",
@@ -439,16 +437,17 @@ fun ItemSesionResumen(sesion: SesionResumen) {
 fun MetricasDeFlujo(
     clientes: Float = 0.54f,
     visita: Float = 0.46f
-){
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface),
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
-        ){
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -518,13 +517,13 @@ fun MetricasDeFlujo(
                     modifier = Modifier
                         .weight(clientes)
                         .fillMaxHeight()
-                        .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                        .background(Color(0xFF2196F3))
                 )
                 Box(
                     modifier = Modifier
                         .weight(visita)
                         .fillMaxHeight()
-                        .background(MaterialTheme.colorScheme.onSurface)
+                        .background(Color(0xFFFF9800))
                 )
             }
         }
@@ -534,17 +533,14 @@ fun MetricasDeFlujo(
 @Preview(showBackground = true)
 @Composable
 fun AdminDashboardPreview() {
-    MiRegistroTheme {
+    MiRegistroTheme(darkTheme = false ) {
         AdminDashboardContent(
             uiState = AdminDashboardUiState(
                 totalVisitas = 125,
                 observadoresActivos = 3,
                 flujoPorHora = listOf(
-                    DatoGrafico("10h", 25),
-                    DatoGrafico("12h", 65),
-                    DatoGrafico("14h", 45),
-                    DatoGrafico("16h", 30),
-                    DatoGrafico("18h", 80)
+                    DatoGrafico("Turno Mañana", 70),
+                    DatoGrafico("Turno Tarde", 55)
                 ),
                 listaSesiones = listOf(
                     SesionResumen(1, "Juan Pérez", "13:30 hrs", 45, 1),

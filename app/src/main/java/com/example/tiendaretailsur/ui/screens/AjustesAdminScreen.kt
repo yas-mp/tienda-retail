@@ -1,7 +1,6 @@
 package com.example.tiendaretailsur.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,14 +56,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.AjustesAdminUiState
 import com.example.tiendaretailsur.model.ConfiguracionAcceso
 import com.example.tiendaretailsur.model.ConfiguracionPerfil
-import com.example.tiendaretailsur.model.RolUsuario
 import com.example.tiendaretailsur.model.SeccionAjustesAdmin
 import com.example.tiendaretailsur.model.Usuario
 import com.example.tiendaretailsur.permisos.Permisos
@@ -76,8 +78,13 @@ import com.example.tiendaretailsur.viewmodel.AjustesAdminViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AjustesAdminScreen(
+    dbHelper: UsuarioDbHelper,
     seccionInicial: SeccionAjustesAdmin = SeccionAjustesAdmin.COLABORADORES,
-    viewModel: AjustesAdminViewModel = viewModel(),
+    viewModel: AjustesAdminViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { AjustesAdminViewModel(dbHelper) }
+        }
+    ),
     onVolverClick: () -> Unit = {},
     onIrAMiPerfilClick: () -> Unit = {}
 ) {
@@ -210,7 +217,7 @@ fun AjustesAdminScreen(
             }
         }
 
-        // Modal de edición de colaborador (Nombre, Correo, Teléfono, Cargo, Rol, Activo, Clave)
+        // Modal de edición de colaborador
         if (uiState.usuarioEnEdicion != null) {
             DialogoEditarUsuario(
                 uiState = uiState,
@@ -331,6 +338,36 @@ private fun SeccionColaboradoresContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun TarjetaContadorAdmin(
+    titulo: String,
+    valor: String,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = valor,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -462,12 +499,12 @@ private fun SeccionPerfilesContent(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            text = "Perfiles de Usuario de la Aplicación (Anexo 2 y RN-19)",
+            text = "Perfiles de Usuario de la Aplicación",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Habilita o deshabilita perfiles completos y edita su configuración. Si deshabilitas un perfil, ningún colaborador asignado a ese rol podrá iniciar sesión.",
+            text = "Habilita o deshabilita perfiles completos y edita su configuración.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
         )
@@ -492,7 +529,7 @@ private fun SeccionPerfilesContent(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "${perfil.codigo} • ${perfil.nombre}",
+                                text = "${perfil.codigo} - ${perfil.nombre}",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -518,7 +555,7 @@ private fun SeccionPerfilesContent(
                     HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
 
                     Text(
-                        text = "Permisos asignados (RN-19):",
+                        text = "Permisos asignados:",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -538,7 +575,7 @@ private fun SeccionPerfilesContent(
                         TextButton(onClick = { onEditarPerfilClick(perfil) }) {
                             Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Configurar perfil", color = MaterialTheme.colorScheme.onSurface)
+                            Text("Configurar perfil")
                         }
                     }
                 }
@@ -565,7 +602,7 @@ private fun SeccionTiendaYCuentaContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Tarjeta de Mi Perfil de Administrador y Permisos Android
+        // Tarjeta de Mi Perfil de Administrador
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -609,7 +646,7 @@ private fun SeccionTiendaYCuentaContent(
             }
         }
 
-        // Meta mensual de tasa de conversión
+        // Meta mensual de conversión
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -619,7 +656,7 @@ private fun SeccionTiendaYCuentaContent(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Text(
-                    text = "Meta Mensual de Conversión (RF-18)",
+                    text = "Meta Mensual de Conversión",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -649,7 +686,7 @@ private fun SeccionTiendaYCuentaContent(
             }
         }
 
-        // Estado operativo de los 4 accesos
+        // Estado operativo de accesos
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -659,13 +696,13 @@ private fun SeccionTiendaYCuentaContent(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Estado de Accesos de la Tienda (A1 a A4)",
+                    text = "Estado de Accesos de la Tienda",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Habilita o marca como cerrado un acceso por mantención o evento (RN-04).",
+                    text = "Habilita o marca como cerrado un acceso por mantención o evento.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 )
@@ -679,7 +716,7 @@ private fun SeccionTiendaYCuentaContent(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "${acceso.codigo} • ${acceso.nombre}",
+                                text = "${acceso.codigo} - ${acceso.nombre}",
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -689,13 +726,6 @@ private fun SeccionTiendaYCuentaContent(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
                             )
-                            if (acceso.modoOfflinePrioritario) {
-                                Text(
-                                    text = "Persistencia local Room/SQLite activa (RNF-03)",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = Exito
-                                )
-                            }
                         }
                         Switch(
                             checked = acceso.habilitado,
@@ -726,7 +756,7 @@ private fun DialogoEditarUsuario(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Modificar Colaborador (${uiState.usuarioEnEdicion?.codigo})",
+                text = "Modificar Colaborador (${uiState.usuarioEnEdicion?.codigo ?: ""})",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -738,6 +768,14 @@ private fun DialogoEditarUsuario(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                if (uiState.errorEdicionUsuario != null) {
+                    Text(
+                        text = uiState.errorEdicionUsuario,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
                 OutlinedTextField(
                     value = uiState.editNombre,
                     onValueChange = onNombreCambia,
@@ -745,6 +783,7 @@ private fun DialogoEditarUsuario(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextField(
                     value = uiState.editRut,
                     onValueChange = onRutCambia,
@@ -752,79 +791,60 @@ private fun DialogoEditarUsuario(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextField(
                     value = uiState.editCorreo,
                     onValueChange = onCorreoCambia,
                     label = { Text("Correo electrónico") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextField(
                     value = uiState.editTelefono,
                     onValueChange = onTelefonoCambia,
-                    label = { Text("Teléfono (9 dígitos)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    label = { Text("Teléfono (+56)") },
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextField(
                     value = uiState.editCargo,
                     onValueChange = onCargoCambia,
-                    label = { Text("Cargo en tienda") },
+                    label = { Text("Cargo") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Text(
-                    text = "Perfil / Rol de usuario (RN-19):",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold
+                OutlinedTextField(
+                    value = uiState.editPerfil,
+                    onValueChange = onPerfilCambia,
+                    label = { Text("Código de Perfil (ej: P-04)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    RolUsuario.entries.forEach { rol ->
-                        FilterChip(
-                            selected = uiState.editPerfil == rol.codigo,
-                            onClick = { onPerfilCambia(rol.codigo) },
-                            label = { Text("${rol.codigo} (${rol.name})") }
-                        )
-                    }
-                }
 
                 OutlinedTextField(
                     value = uiState.editNuevaContrasena,
                     onValueChange = onNuevaContrasenaCambia,
-                    label = { Text("Nueva contraseña (opcional - SHA-256)") },
-                    placeholder = { Text("Dejar vacío para mantener actual") },
+                    label = { Text("Nueva contraseña (opcional)") },
                     singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Estado de cuenta habilitado",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Text("Cuenta activa")
                     Switch(
                         checked = uiState.editActivo,
                         onCheckedChange = onActivoCambia
-                    )
-                }
-
-                uiState.errorEdicionUsuario?.let { error ->
-                    Text(
-                        text = error,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }
@@ -852,19 +872,20 @@ private fun DialogoEditarPerfil(
     onAplicarATodosCambia: (Boolean) -> Unit,
     onGuardar: () -> Unit
 ) {
-    val perfil = uiState.perfilEnEdicion ?: return
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Configurar Perfil ${perfil.codigo}",
+                text = "Configurar Perfil ${uiState.perfilEnEdicion?.codigo ?: ""}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
         },
         text = {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedTextField(
@@ -874,35 +895,32 @@ private fun DialogoEditarPerfil(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 OutlinedTextField(
                     value = uiState.editPerfilDescripcion,
                     onValueChange = onDescripcionCambia,
-                    label = { Text("Descripción y funciones") },
+                    label = { Text("Descripción") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Perfil habilitado en la app")
+                    Text("Perfil habilitado")
                     Switch(
                         checked = uiState.editPerfilHabilitado,
                         onCheckedChange = onHabilitadoCambia
                     )
                 }
+
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onAplicarATodosCambia(!uiState.aplicarEstadoATodosLosUsuariosDelPerfil) },
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Aplicar este estado (habilitado/deshabilitado) a todas las cuentas de este perfil",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.weight(1f)
-                    )
+                    Text("Aplicar estado a todos sus usuarios")
                     Switch(
                         checked = uiState.aplicarEstadoATodosLosUsuariosDelPerfil,
                         onCheckedChange = onAplicarATodosCambia
@@ -912,7 +930,7 @@ private fun DialogoEditarPerfil(
         },
         confirmButton = {
             Button(onClick = onGuardar) {
-                Text("Guardar perfil")
+                Text("Guardar cambios")
             }
         },
         dismissButton = {
@@ -923,39 +941,13 @@ private fun DialogoEditarPerfil(
     )
 }
 
+@Preview(showBackground = true, name = "Ajustes Admin Preview")
 @Composable
-private fun TarjetaContadorAdmin(
-    titulo: String,
-    valor: String,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = valor,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = titulo,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun AjustesAdminScreenPreview() {
+fun AjustesAdminScreenPreview() {
     MiRegistroTheme {
-        AjustesAdminScreen()
+        // Vista previa con datos locales estáticos sin invocar SQLite
+        Surface {
+            Text("Vista previa de Ajustes Admin")
+        }
     }
 }

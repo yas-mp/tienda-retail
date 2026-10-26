@@ -45,19 +45,6 @@ import com.example.tiendaretailsur.ui.theme.CardOscura
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 import com.example.tiendaretailsur.ui.theme.TextoOscuro
 
-object Rutas {
-    const val PRUEBAS = "pruebas"
-    const val LOGIN = "login"
-    const val RECUPERAR_CONTRASENA = "recuperar_contrasena"
-    const val MENU_PRINCIPAL = "menu_principal"
-    const val FORM_CONTEO = "formulario_conteo"
-    const val FORM_REGISTRO = "formulario_registro"
-    const val ADMIN_DASHBOARD = "admin_dashboard"
-    const val GESTION_USUARIOS = "gestion_usuarios"
-    const val AJUSTES = "ajustes"
-    const val PERFIL = "perfil"
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
@@ -70,11 +57,11 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
     val navController = rememberNavController()
     val rutaActual = navController.currentBackStackEntryAsState().value?.destination?.route
 
+    // Ocultar la barra superior de pruebas en pantallas principales de navegación limpia
     val mostrarBarraPruebas = rutaActual !in listOf(
-        Rutas.ADMIN_DASHBOARD,
-        Rutas.AJUSTES,
-        Rutas.GESTION_USUARIOS,
-        Rutas.PERFIL
+        Ruta.AdminPanel.ruta,
+        Ruta.AjustesAdmin.ruta,
+        Ruta.Perfil.ruta
     )
 
     val navContainerColor = CardOscura
@@ -115,59 +102,65 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Rutas.LOGIN,
+                startDestination = Ruta.Login.ruta,
                 modifier = if (mostrarBarraPruebas) Modifier.padding(innerPadding) else Modifier
             ) {
-                composable(Rutas.PRUEBAS) { PantallaPruebas(navController) }
-
-                composable(Rutas.LOGIN) {
+                composable(Ruta.Login.ruta) {
                     LoginScreen(
+                        dbHelper = dbHelper, // <--- Agrega esta línea
                         onLoginSuccess = { usuarioAutenticado ->
                             isAdmin = usuarioAutenticado.perfil in listOf("P-01", "P-02", "SUBGERENTE")
-                            navController.navigate(Rutas.MENU_PRINCIPAL)
+                            navController.navigate(Ruta.MenuPrincipal.ruta) {
+                                popUpTo(Ruta.Login.ruta) { inclusive = true }
+                            }
                         },
                         onOlvideContrasenaClick = {
-                            navController.navigate(Rutas.RECUPERAR_CONTRASENA)
+                            navController.navigate(Ruta.RecuperacionContrasena.ruta)
                         },
                         onCrearCuentaClick = {
-                            navController.navigate(Rutas.FORM_REGISTRO)
+                            navController.navigate(Ruta.FormularioRegistro.ruta)
                         }
                     )
                 }
 
-                composable(Rutas.RECUPERAR_CONTRASENA) {
+                composable(Ruta.RecuperacionContrasena.ruta) {
                     RecuperarContrasenaScreen(
+                        dbHelper = dbHelper,
                         onVolverALoginClick = {
                             navController.popBackStack()
                         }
                     )
                 }
 
-                composable(Rutas.FORM_REGISTRO) {
+                composable(Ruta.FormularioRegistro.ruta) {
                     FormularioRegistroScreen(
                         dbHelper = dbHelper,
                         onIrALoginClick = {
-                            navController.navigate(Rutas.LOGIN) {
-                                popUpTo(Rutas.LOGIN) { inclusive = true }
+                            navController.navigate(Ruta.Login.ruta) {
+                                popUpTo(Ruta.Login.ruta) { inclusive = true }
                             }
                         }
                     )
                 }
 
-                composable(Rutas.MENU_PRINCIPAL) {
+                composable(Ruta.MenuPrincipal.ruta) {
                     MenuPrincipalScreen(
                         isAdmin = isAdmin,
                         onIrAdminDashboard = {
-                            navController.navigate(Rutas.ADMIN_DASHBOARD)
+                            navController.navigate(Ruta.AdminPanel.ruta)
                         },
                         onIrPerfil = {
-                            navController.navigate(Rutas.PERFIL)},
+                            navController.navigate(Ruta.Perfil.ruta)
+                        },
                         onCerrarSesion = {
-                            navController.popBackStack(Rutas.LOGIN, inclusive = false)}
+                            navController.navigate(Ruta.Login.ruta) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
                     )
                 }
 
-                composable(Rutas.PERFIL) {
+                composable(Ruta.Perfil.ruta) {
                     PerfilScreen(
                         isAdmin = isAdmin,
                         onVolver = {
@@ -176,67 +169,31 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                     )
                 }
 
-                composable(Rutas.FORM_CONTEO) { FormularioConteoScreen() }
+                composable(Ruta.FormularioConteo.ruta) {
+                    FormularioConteoScreen()
+                }
 
-                composable(Rutas.ADMIN_DASHBOARD) {
+                composable(Ruta.AdminPanel.ruta) {
                     AdminDashboardScreen(
                         dbHelper = dbHelper,
-                        onGestionUsuarios = { navController.navigate(Rutas.GESTION_USUARIOS) },
-                        onAjustes = { navController.navigate(Rutas.AJUSTES) },
+                        onGestionUsuarios = { navController.navigate(Ruta.AjustesAdmin.ruta) },
+                        onAjustes = { navController.navigate(Ruta.AjustesAdmin.ruta) },
                         onCerrarSesionClick = {
-                            navController.popBackStack(Rutas.LOGIN, inclusive = false)
+                            navController.navigate(Ruta.Login.ruta) {
+                                popUpTo(0) { inclusive = true }
+                            }
                         }
                     )
                 }
 
-                composable(Rutas.GESTION_USUARIOS) {
+                composable(Ruta.AjustesAdmin.ruta) {
                     AjustesAdminScreen(
+                        dbHelper = dbHelper,
                         seccionInicial = SeccionAjustesAdmin.COLABORADORES,
                         onVolverClick = { navController.popBackStack() },
-                        onIrAMiPerfilClick = { navController.navigate(Rutas.PERFIL) }
+                        onIrAMiPerfilClick = { navController.navigate(Ruta.Perfil.ruta) }
                     )
                 }
-
-                composable(Rutas.AJUSTES) {
-                    AjustesAdminScreen(
-                        seccionInicial = SeccionAjustesAdmin.PERFILES,
-                        onVolverClick = { navController.popBackStack() },
-                        onIrAMiPerfilClick = { navController.navigate(Rutas.PERFIL) }
-                    )
-                }
-
-            }
-        }
-    }
-}
-
-@Composable
-private fun PantallaPruebas(navController: NavHostController) {
-    val destinos = listOf(
-        "Login" to Rutas.LOGIN,
-        "Menú principal" to Rutas.MENU_PRINCIPAL,
-        "Formulario de conteo" to Rutas.FORM_CONTEO,
-        "Formulario de registro" to Rutas.FORM_REGISTRO,
-        "Recuperar contraseña" to Rutas.RECUPERAR_CONTRASENA,
-        "Dashboard admin" to Rutas.ADMIN_DASHBOARD,
-        "Gestión de usuarios" to Rutas.GESTION_USUARIOS,
-        "Ajustes de administrador" to Rutas.AJUSTES,
-        "Mi Perfil (Foto/Cámara)" to Rutas.PERFIL
-    )
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
-    ) {
-        Text("Menú de pruebas", style = MaterialTheme.typography.headlineSmall)
-        destinos.forEach { (nombre, ruta) ->
-            Button(
-                onClick = { navController.navigate(ruta) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(nombre)
             }
         }
     }

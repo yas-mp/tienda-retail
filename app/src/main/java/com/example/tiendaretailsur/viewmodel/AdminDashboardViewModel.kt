@@ -36,7 +36,7 @@ class AdminDashboardViewModel(
                 totalVisitas = listaSesiones.sumOf { it.conteo },
                 observadoresActivos = listaConteos.map { it.observador }.distinct().size,
                 listaSesiones = listaSesiones,
-                flujoPorHora = dbHelper.obtenerFlujoPorHora(),
+                flujoPorHora = dbHelper.obtenerFlujoPorTurno(),
                 segmentacion = dbHelper.obtenerSegmentacion(),
                 estaCargando = false
             )

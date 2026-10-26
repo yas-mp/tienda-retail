@@ -26,16 +26,18 @@ class AjustesAdminViewModel(
     fun recargarDatos() {
         _uiState.update {
             it.copy(
+                usuarios = dbHelper.listarUsuarios(),
                 perfiles = dbHelper.listarPerfiles(),
                 accesos = dbHelper.listarPuertas().map { puerta ->
                     ConfiguracionAcceso(
                         codigo = puerta.id,
                         nombre = puerta.nombre,
                         ubicacion = puerta.descripcion,
-                        habilitado = true
+                        habilitado = true,
+                        modoOfflinePrioritario = puerta.id == "A3"
                     )
                 },
-                metaConversionTexto = "15.0"
+                metaConversionTexto = it.metaConversionTexto.ifBlank { "10.0" }
             )
         }
     }
@@ -56,17 +58,17 @@ class AjustesAdminViewModel(
         _uiState.update { it.copy(mensajeConfirmacion = null) }
     }
 
-    // Habilitar / Deshabilitar colaborador
     fun alternarEstadoUsuario(usuario: Usuario, nuevoEstado: Boolean) {
+        dbHelper.cambiarEstadoUsuario(usuario.rut, nuevoEstado)
         val estadoTexto = if (nuevoEstado) "habilitado" else "deshabilitado"
         _uiState.update {
             it.copy(
+                usuarios = dbHelper.listarUsuarios(),
                 mensajeConfirmacion = "Colaborador ${usuario.nombreCompleto} $estadoTexto"
             )
         }
     }
 
-    // Abrir modal para editar colaborador
     fun abrirEditorUsuario(usuario: Usuario) {
         _uiState.update {
             it.copy(
@@ -142,28 +144,34 @@ class AjustesAdminViewModel(
             return
         }
 
-        // Si ingresó una nueva contraseña opcional, actualizamos en la BD
-        if (estado.editNuevaContrasena.isNotBlank()) {
-            dbHelper.actualizarContrasena(
-                rutOCorreo = usuarioOriginal.rut,
-                nuevaContrasena = estado.editNuevaContrasena
-            )
-        }
+        dbHelper.actualizarDatosUsuario(
+            rutOriginal = usuarioOriginal.rut,
+            nuevoNombre = estado.editNombre,
+            nuevoRut = estado.editRut,
+            nuevoCorreo = estado.editCorreo,
+            nuevoTelefono = estado.editTelefono,
+            nuevoCargo = estado.editCargo,
+            nuevoCodigoPerfil = estado.editPerfil,
+            activo = estado.editActivo,
+            nuevaContrasenaOpcional = estado.editNuevaContrasena.takeIf { it.isNotBlank() }
+        )
 
         _uiState.update {
             it.copy(
+                usuarios = dbHelper.listarUsuarios(),
                 usuarioEnEdicion = null,
                 errorEdicionUsuario = null,
-                mensajeConfirmacion = "Datos de ${estado.editNombre} actualizados correctamente"
+                mensajeConfirmacion = "Datos de ${estado.editNombre} guardados en SQLite"
             )
         }
     }
 
-    // Configuración de Perfiles (P-01 a P-04)
     fun alternarEstadoPerfil(perfil: ConfiguracionPerfil, habilitado: Boolean) {
+        dbHelper.cambiarEstadoPerfil(perfil.codigo, habilitado)
         val textoEstado = if (habilitado) "habilitado" else "deshabilitado"
         _uiState.update {
             it.copy(
+                perfiles = dbHelper.listarPerfiles(),
                 mensajeConfirmacion = "Perfil ${perfil.codigo} (${perfil.nombre}) $textoEstado"
             )
         }
@@ -206,15 +214,24 @@ class AjustesAdminViewModel(
         val perfil = estado.perfilEnEdicion ?: return
         if (estado.editPerfilNombre.isBlank()) return
 
+        dbHelper.actualizarPerfilConfig(
+            codigoPerfil = perfil.codigo,
+            nuevoNombre = estado.editPerfilNombre,
+            nuevaDescripcion = estado.editPerfilDescripcion,
+            habilitado = estado.editPerfilHabilitado,
+            aplicarAUsuarios = estado.aplicarEstadoATodosLosUsuariosDelPerfil
+        )
+
         _uiState.update {
             it.copy(
+                perfiles = dbHelper.listarPerfiles(),
+                usuarios = dbHelper.listarUsuarios(),
                 perfilEnEdicion = null,
-                mensajeConfirmacion = "Configuración del perfil ${perfil.codigo} guardada"
+                mensajeConfirmacion = "Configuración del perfil ${perfil.codigo} guardada en SQLite"
             )
         }
     }
 
-    // Ajustes de Tienda: Meta de Conversión y Accesos A1 a A4
     fun onMetaConversionCambia(valor: String) {
         _uiState.update { it.copy(metaConversionTexto = valor) }
     }
@@ -223,9 +240,7 @@ class AjustesAdminViewModel(
         val valorNum = _uiState.value.metaConversionTexto.replace(",", ".").toDoubleOrNull()
         if (valorNum != null && valorNum in 0.1..100.0) {
             _uiState.update {
-                it.copy(
-                    mensajeConfirmacion = "Meta mensual actualizada a $valorNum%"
-                )
+                it.copy(mensajeConfirmacion = "Meta mensual actualizada a $valorNum%")
             }
         } else {
             _uiState.update {
@@ -236,8 +251,11 @@ class AjustesAdminViewModel(
 
     fun alternarEstadoAcceso(codigoAcceso: String, habilitado: Boolean) {
         val estadoTexto = if (habilitado) "operativo" else "cerrado por evento/mantención"
-        _uiState.update {
-            it.copy(
+        _uiState.update { estado ->
+            estado.copy(
+                accesos = estado.accesos.map {
+                    if (it.codigo == codigoAcceso) it.copy(habilitado = habilitado) else it
+                },
                 mensajeConfirmacion = "Acceso $codigoAcceso marcado como $estadoTexto"
             )
         }

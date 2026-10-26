@@ -2,6 +2,7 @@ package com.example.tiendaretailsur.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.tiendaretailsur.data.UsuarioDbHelper
+import com.example.tiendaretailsur.model.HashUtils
 import com.example.tiendaretailsur.model.PasoRecuperacion
 import com.example.tiendaretailsur.model.RecuperarContrasenaUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,10 @@ class RecuperarContrasenaViewModel(
         _uiState.update { it.copy(respuesta1 = valor, errorRespuesta1 = null) }
     }
 
+    fun onRespuesta2Cambia(valor: String) {
+        _uiState.update { it.copy(respuesta2 = valor, errorRespuesta2 = null) }
+    }
+
     fun onNuevaContrasenaCambia(valor: String) {
         _uiState.update { it.copy(nuevaContrasena = valor, errorNuevaContrasena = null) }
     }
@@ -39,6 +44,7 @@ class RecuperarContrasenaViewModel(
     fun onAlternarConfirmarVisible() {
         _uiState.update { it.copy(confirmarContrasenaVisible = !it.confirmarContrasenaVisible) }
     }
+
     fun buscarUsuario() {
         val identificador = _uiState.value.identificadorUsuario.trim()
         if (identificador.isBlank()) {
@@ -62,6 +68,7 @@ class RecuperarContrasenaViewModel(
             }
         }
     }
+
     fun verificarRespuestas() {
         val estado = _uiState.value
         val identificador = estado.correoUsuarioEncontrado.trim()
@@ -87,6 +94,7 @@ class RecuperarContrasenaViewModel(
             }
         }
     }
+
     fun guardarNuevaContrasena() {
         val estado = _uiState.value
         val errorNueva = validarFormatoContrasena(estado.nuevaContrasena)
@@ -113,7 +121,10 @@ class RecuperarContrasenaViewModel(
 
         if (filasAfectadas > 0) {
             _uiState.update {
-                it.copy(pasoActual = PasoRecuperacion.COMPLETADO)
+                it.copy(
+                    pasoActual = PasoRecuperacion.COMPLETADO,
+                    nuevoHashGenerado = HashUtils.generarHash(nuevaClave)
+                )
             }
         } else {
             _uiState.update {

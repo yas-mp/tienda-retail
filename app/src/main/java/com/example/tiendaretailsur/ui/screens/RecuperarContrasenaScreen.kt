@@ -29,11 +29,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.tiendaretailsur.R
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.PasoRecuperacion
 import com.example.tiendaretailsur.ui.components.CampoContrasena
 import com.example.tiendaretailsur.ui.components.CampoTexto
@@ -44,7 +45,12 @@ import com.example.tiendaretailsur.viewmodel.RecuperarContrasenaViewModel
 
 @Composable
 fun RecuperarContrasenaScreen(
-    viewModel: RecuperarContrasenaViewModel = viewModel(),
+    dbHelper: UsuarioDbHelper,
+    viewModel: RecuperarContrasenaViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { RecuperarContrasenaViewModel(dbHelper) }
+        }
+    ),
     onVolverALoginClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -64,7 +70,6 @@ fun RecuperarContrasenaScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(Dimens.espacioMedio)
         ) {
-            // Encabezado
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
@@ -88,12 +93,12 @@ fun RecuperarContrasenaScreen(
             }
 
             Text(
-                text = "Valida tu identidad respondiendo tus preguntas de seguridad para restablecer tu contraseña.",
+                text = "Valida tu identidad respondiendo tu pregunta de seguridad para restablecer tu contraseña.",
                 style = tipografia.bodyMedium,
                 color = colores.onBackground.copy(alpha = 0.85f)
             )
 
-            // Busca Usuario por Correo o RUT
+            // Paso 1: Busca Usuario por Correo o RUT en SQLite
             if (uiState.pasoActual == PasoRecuperacion.BUSCAR_USUARIO) {
                 Card(
                     shape = formas.large,
@@ -138,7 +143,6 @@ fun RecuperarContrasenaScreen(
                 }
             }
 
-            // Preguntas de Seguridad
             if (uiState.pasoActual == PasoRecuperacion.PREGUNTAS_SEGURIDAD) {
                 Card(
                     shape = formas.large,
@@ -150,38 +154,21 @@ fun RecuperarContrasenaScreen(
                         verticalArrangement = Arrangement.spacedBy(Dimens.espacioMedio)
                     ) {
                         Text(
-                            text = "Paso 2: Preguntas de seguridad",
+                            text = "Paso 2: Pregunta de seguridad",
                             style = tipografia.titleMedium,
-                            color = colores.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Colaborador: ${uiState.nombreUsuarioEncontrado}",
-                            style = tipografia.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                             color = colores.onSurfaceVariant
                         )
 
                         Text(
-                            text = "1. ${uiState.pregunta1}",
+                            text = uiState.pregunta1,
                             style = tipografia.labelLarge,
                             color = colores.onSurfaceVariant
                         )
                         CampoTexto(
                             valor = uiState.respuesta1,
                             onValorCambia = viewModel::onRespuesta1Cambia,
-                            etiqueta = "Tu respuesta 1",
+                            etiqueta = "Tu respuesta de seguridad",
                             error = uiState.errorRespuesta1
-                        )
-
-                        Text(
-                            text = "2. ${uiState.pregunta2}",
-                            style = tipografia.labelLarge,
-                            color = colores.onSurfaceVariant
-                        )
-                        CampoTexto(
-                            valor = uiState.respuesta2,
-                            onValorCambia = viewModel::onRespuesta2Cambia,
-                            etiqueta = "Tu respuesta 2",
-                            error = uiState.errorRespuesta2
                         )
 
                         Button(
@@ -196,7 +183,7 @@ fun RecuperarContrasenaScreen(
                             )
                         ) {
                             Text(
-                                text = "Verificar respuestas",
+                                text = "Verificar respuesta",
                                 style = tipografia.labelLarge
                             )
                         }
@@ -204,7 +191,6 @@ fun RecuperarContrasenaScreen(
                 }
             }
 
-            // Ingresar Nueva Contraseña
             if (uiState.pasoActual == PasoRecuperacion.CAMBIAR_CONTRASENA) {
                 Card(
                     shape = formas.large,
@@ -259,7 +245,6 @@ fun RecuperarContrasenaScreen(
                 }
             }
 
-            // Confirmación de éxito y muestra del Hash SHA-256 generado
             if (uiState.pasoActual == PasoRecuperacion.COMPLETADO) {
                 Card(
                     shape = formas.large,
@@ -279,14 +264,9 @@ fun RecuperarContrasenaScreen(
                             color = Exito
                         )
                         Text(
-                            text = "Tu nueva contraseña ha sido encriptada con SHA-256 (password_hash):",
+                            text = "Tu contraseña ha sido actualizada correctamente en la base de datos. Ya puedes iniciar sesión con tus nuevas credenciales.",
                             style = tipografia.bodyMedium,
-                            color = colores.onPrimary
-                        )
-                        Text(
-                            text = uiState.nuevoHashGenerado,
-                            style = tipografia.bodyMedium.copy(fontSize = 11.sp),
-                            color = Exito
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
                 }
@@ -294,7 +274,6 @@ fun RecuperarContrasenaScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Botón para volver al Login en cualquier momento
             TextButton(
                 onClick = onVolverALoginClick,
                 modifier = Modifier.align(Alignment.CenterHorizontally)

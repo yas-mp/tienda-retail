@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.example.tiendaretailsur.model.AccesoTienda
+import com.example.tiendaretailsur.model.ConfiguracionPerfil
 import com.example.tiendaretailsur.model.DatoGrafico
 import com.example.tiendaretailsur.model.FormularioConteoUiState
 import com.example.tiendaretailsur.model.FormularioRegistroUiState
@@ -17,7 +18,7 @@ class UsuarioDbHelper(context: Context)
 
     companion object {
         private const val NOMBRE_BD = "tiendaretailsur.db"
-        private const val VERSION_DB = 2
+        private const val VERSION_DB = 3
 
         private const val TABLA_ROLES = "roles"
         private const val ID_ROL = "id_rol"
@@ -61,6 +62,12 @@ class UsuarioDbHelper(context: Context)
                     "$NOMBRE_ROL TEXT NOT NULL UNIQUE, " +
                     "$CODIGO_ROL TEXT NOT NULL UNIQUE, " +
                     "$DESCRIPCION_ROL TEXT NOT NULL) "
+
+        private const val SQL_CREAR_PUERTAS =
+            "CREATE TABLE $TABLA_PUERTAS (" +
+                    "$ID_PUERTA TEXT PRIMARY KEY, " +
+                    "$NOMBRE_PUERTA TEXT NOT NULL, " +
+                    "$DESCRIPCION_PUERTA TEXT NOT NULL)"
 
         private const val SQL_CREAR_USUARIOS =
             "CREATE TABLE $TABLA_USUARIO (" +
@@ -136,8 +143,11 @@ class UsuarioDbHelper(context: Context)
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(SQL_CREAR_ROLES)
         db.execSQL(SQL_CREAR_USUARIOS)
+        db.execSQL(SQL_CREAR_PUERTAS)
         db.execSQL(SQL_CREAR_CONTEOS)
+
         db.execSQL(SQL_PRECARGAR_ROLES)
+        db.execSQL(SQL_PRECARGAR_PUERTAS)
         db.execSQL(SQL_PRECARGAR_USUARIOS)
         db.execSQL(SQL_PRECARGAR_CONTEOS)
     }
@@ -145,6 +155,10 @@ class UsuarioDbHelper(context: Context)
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if(oldVersion < 2){
             db.execSQL(SQL_AGREGAR_AVATAR)
+        }
+        if(oldVersion < 3){
+            db.execSQL(SQL_CREAR_PUERTAS)
+            db.execSQL(SQL_PRECARGAR_PUERTAS)
         }
     }
 
@@ -159,6 +173,27 @@ class UsuarioDbHelper(context: Context)
                         id = cursor.getString(cursor.getColumnIndexOrThrow(ID_PUERTA)),
                         nombre = cursor.getString(cursor.getColumnIndexOrThrow(NOMBRE_PUERTA)),
                         descripcion = cursor.getString(cursor.getColumnIndexOrThrow(DESCRIPCION_PUERTA))
+                    )
+                )
+            }
+        }
+        return lista
+    }
+    fun listarPerfiles(): List<ConfiguracionPerfil> {
+        val lista = mutableListOf<ConfiguracionPerfil>()
+        val sql = "SELECT * FROM $TABLA_ROLES ORDER BY $ID_ROL ASC"
+        readableDatabase.rawQuery(sql, null).use { cursor ->
+            while (cursor.moveToNext()) {
+                val codigo = cursor.getString(cursor.getColumnIndexOrThrow(CODIGO_ROL))
+                val nombre = cursor.getString(cursor.getColumnIndexOrThrow(NOMBRE_ROL))
+                val descripcion = cursor.getString(cursor.getColumnIndexOrThrow(DESCRIPCION_ROL))
+
+                lista.add(
+                    ConfiguracionPerfil(
+                        codigo = codigo,
+                        nombre = nombre,
+                        descripcion = descripcion,
+                        habilitado = true
                     )
                 )
             }
@@ -272,6 +307,30 @@ class UsuarioDbHelper(context: Context)
 
                 lista.add(DatoGrafico("Transito (Pasillo)", totalTransito))
                 lista.add(DatoGrafico("Clientes / Visita", totalClientes))
+            }
+        }
+        return lista
+    }
+
+    fun obtenerFlujoPorTurno() : List<DatoGrafico>{
+        val lista = mutableListOf<DatoGrafico>()
+        val sql = """
+            SELECT 
+                CASE 
+                    WHEN CAST(REPLACE($HORA, 'h', '') AS INTEGER) < 14 THEN 'Turno Mañana'
+                    ELSE 'Turno Tarde'
+                END AS turno,
+                SUM($CANT_CLIENTES) AS total_clientes
+            FROM $TABLA_CONTEO
+            GROUP BY turno
+            ORDER BY turno ASC
+        """.trimIndent()
+
+        readableDatabase.rawQuery(sql, null).use { cursor ->
+            while (cursor.moveToNext()){
+                val turno = cursor.getString(cursor.getColumnIndexOrThrow("turno"))
+                val total = cursor.getInt(cursor.getColumnIndexOrThrow("total_clientes"))
+                lista.add(DatoGrafico(turno,total))
             }
         }
         return lista

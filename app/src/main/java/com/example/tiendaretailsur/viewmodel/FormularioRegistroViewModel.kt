@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.FormularioRegistroUiState
 import com.example.tiendaretailsur.model.RolUsuario
-import com.example.tiendaretailsur.model.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +33,7 @@ class FormularioRegistroViewModel(
             it.copy(respuestaSeguridad = respuesta, errorRespuesta = null, registroExitoso = false)
         }
     }
+
     fun onRutCambia(nuevoRut: String) {
         val rutFormateado = autoCompletadoRut(nuevoRut)
         _uiState.update {
@@ -54,7 +54,6 @@ class FormularioRegistroViewModel(
     }
 
     fun onTelefonoCambia(valor: String) {
-        // Filtramos para que solo acepte números y un máximo de 9 dígitos
         val soloNumeros = valor.filter { it.isDigit() }.take(9)
         _uiState.update {
             it.copy(telefono = soloNumeros, errorTelefono = null, registroExitoso = false)
@@ -106,7 +105,9 @@ class FormularioRegistroViewModel(
             errorCorreo,
             errorTelefono,
             errorContrasena,
-            errorTerminos
+            errorTerminos,
+            errorPregunta,
+            errorRespuesta
         ).any { it != null }
 
         var guardar = false
@@ -114,16 +115,6 @@ class FormularioRegistroViewModel(
         if (!siHayErrores) {
             val resultado = dbHelper.registroUsuarioFormularioRegistro(estado)
             guardar = resultado != -1L
-        }
-
-        if (!siHayErrores) {
-            UsuarioRepository.registrarNuevoUsuario(
-                rut = estado.rut,
-                nombre = estado.nombre,
-                correo = estado.correo,
-                telefono = estado.telefono,
-                contrasenaPlana = estado.contrasena
-            )
         }
 
         _uiState.update {
@@ -160,6 +151,7 @@ class FormularioRegistroViewModel(
             suma += (cuerpoRut[i].toString().toInt()) * multiplicador
             multiplicador = if (multiplicador < 7) multiplicador + 1 else 2
         }
+
         val resto = suma % 11
         val dvRutCalculado = when (val resultado = 11 - resto) {
             11 -> '0'

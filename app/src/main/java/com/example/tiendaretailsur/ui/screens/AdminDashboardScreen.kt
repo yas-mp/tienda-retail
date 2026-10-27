@@ -323,7 +323,7 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFF)),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -438,6 +438,10 @@ fun MetricasDeFlujo(
     clientes: Float = 0.54f,
     visita: Float = 0.46f
 ) {
+    // Garantizamos que los pesos sean siempre estrictamente mayores a 0
+    val pesoClientes = clientes.coerceAtLeast(0.01f)
+    val pesoVisita = visita.coerceAtLeast(0.01f)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -515,13 +519,13 @@ fun MetricasDeFlujo(
             ) {
                 Box(
                     modifier = Modifier
-                        .weight(clientes)
+                        .weight(pesoClientes)
                         .fillMaxHeight()
                         .background(Color(0xFF2196F3))
                 )
                 Box(
                     modifier = Modifier
-                        .weight(visita)
+                        .weight(pesoVisita)
                         .fillMaxHeight()
                         .background(Color(0xFFFF9800))
                 )
@@ -533,7 +537,7 @@ fun MetricasDeFlujo(
 @Preview(showBackground = true)
 @Composable
 fun AdminDashboardPreview() {
-    MiRegistroTheme(darkTheme = false ) {
+    MiRegistroTheme(darkTheme = false) {
         AdminDashboardContent(
             uiState = AdminDashboardUiState(
                 totalVisitas = 125,

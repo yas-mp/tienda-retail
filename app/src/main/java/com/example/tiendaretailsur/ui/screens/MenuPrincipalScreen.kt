@@ -149,7 +149,7 @@ fun MenuPrincipalScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(if (isAdmin) "Menú Principal (Admin)" else "Menú Principal (Colaborador)") },
+                    title = { Text(if (isAdmin) "Menú Principal" else "Menú Principal") },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(imageVector = Icons.Default.Menu, contentDescription = "Menú lateral")
@@ -258,7 +258,7 @@ fun MenuPrincipalScreen(
 
                     item {
                         Text(
-                            text = "Distribución por Accesos (4 Puertas)",
+                            text = "Distribución por Accesos",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onBackground
@@ -340,29 +340,13 @@ fun MenuPrincipalScreen(
                         }
 
                         item {
-                            Card(
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface,
-                                    contentColor = MaterialTheme.colorScheme.onSurface
-                                ),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Text(
-                                        text = "Puertas de Acceso Disponibles",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = "Selecciona la puerta de acceso donde te encuentras ubicado para iniciar el registro.",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                                    )
-                                }
-                            }
+                            Text(
+                                text = "Selecciona la puerta de acceso donde te encuentras ubicado:",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+                            )
                         }
 
                         items(uiState.listaAccesos) { acceso ->

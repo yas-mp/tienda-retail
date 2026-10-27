@@ -98,7 +98,7 @@ fun FormularioConteoContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedButton(onClick = onVolver) {
-                    Text("Vovler Accesos")
+                    Text("Volver Accesos")
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(

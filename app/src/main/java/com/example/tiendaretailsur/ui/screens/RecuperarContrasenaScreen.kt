@@ -98,7 +98,6 @@ fun RecuperarContrasenaScreen(
                 color = colores.onBackground.copy(alpha = 0.85f)
             )
 
-            // Paso 1: Busca Usuario por Correo o RUT en SQLite
             if (uiState.pasoActual == PasoRecuperacion.BUSCAR_USUARIO) {
                 Card(
                     shape = formas.large,

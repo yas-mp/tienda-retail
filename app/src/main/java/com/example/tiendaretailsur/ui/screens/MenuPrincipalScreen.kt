@@ -160,7 +160,6 @@ fun MenuPrincipalScreen(
         ) { innerPadding ->
 
             if (isAdmin) {
-                //  VISTA DE ADMINISTRADOR
                 LazyColumn(
                     modifier = modifier
                         .fillMaxSize()
@@ -175,8 +174,6 @@ fun MenuPrincipalScreen(
                             avatarBytes = uiState.avatarBytes
                         )
                     }
-
-                    // baner: Total de ingresos de las 4 puertas y porcentajes
                     item {
                         Card(
                             colors = CardDefaults.cardColors(
@@ -302,8 +299,6 @@ fun MenuPrincipalScreen(
                             }
                         }
                     }
-
-                    // boton para ver el Panel Avanzado
                     item {
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
@@ -322,7 +317,6 @@ fun MenuPrincipalScreen(
                     }
                 }
             } else {
-                //  VISTA DE USUARIO
                 if (accesoSeleccionado == null) {
                     LazyColumn(
                         modifier = modifier
@@ -390,7 +384,6 @@ fun MenuPrincipalScreen(
                         }
                     }
                 } else {
-                    // selecciona puerta -> abre formulario
                     Box(modifier = Modifier.padding(innerPadding)) {
                         FormularioConteoScreen(
                             puertaInicial = accesoSeleccionado!!,

@@ -281,7 +281,6 @@ fun LoginContent(
 
             Spacer(modifier = Modifier.height(Dimens.espacioMedio))
 
-            // Campo Contraseña
             Text(
                 text = stringResource(id = R.string.login_label_contrasena),
                 style = tipografia.labelLarge,
@@ -355,7 +354,6 @@ fun LoginContent(
                 )
             }
 
-            // Botón "¿Olvidaste tu contraseña?"
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.CenterEnd
@@ -371,7 +369,6 @@ fun LoginContent(
 
             Spacer(modifier = Modifier.height(Dimens.espacioChico))
 
-            // Botón Principal "Iniciar sesión ->"
             Button(
                 onClick = onLoginClick,
                 enabled = !uiState.isLoading,
@@ -413,7 +410,6 @@ fun LoginContent(
                 }
             }
 
-            // Cartel Verde de Confirmación de Login Exitoso
             if (uiState.loginExitoso && uiState.usuarioAutenticado != null) {
                 Spacer(modifier = Modifier.height(Dimens.espacioMedio))
                 MensajeLoginExitoso(usuario = uiState.usuarioAutenticado!!)

@@ -287,7 +287,7 @@ private fun SeccionColaboradoresContent(
             TarjetaContadorAdmin(
                 titulo = "Total Cuentas",
                 valor = "${uiState.usuarios.size}",
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             TarjetaContadorAdmin(
                 titulo = "Habilitados",

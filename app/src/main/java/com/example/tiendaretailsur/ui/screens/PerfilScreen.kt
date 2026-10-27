@@ -175,7 +175,6 @@ fun PerfilScreen(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // Tarjeta con información del colaborador (Nombre, Correo, Turno)
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier.fillMaxWidth()
@@ -212,7 +211,6 @@ fun PerfilScreen(
                 }
             }
 
-            // Tarjeta para cambiar foto de perfil (Cámara o Galería)
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier.fillMaxWidth()

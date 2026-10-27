@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,6 +56,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.tiendaretailsur.R
 import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.AdminDashboardUiState
 import com.example.tiendaretailsur.model.DatoGrafico
@@ -72,7 +75,7 @@ fun AdminDashboardScreen(
         }
     ),
     usuarioViewModel: UsuarioViewModel = viewModel(),
-    onGestionUsuarios: () -> Unit = {},
+    onVolverInicio: () -> Unit = {},
     onAjustes: () -> Unit = {},
     onCerrarSesionClick: () -> Unit = {}
 ) {
@@ -82,7 +85,7 @@ fun AdminDashboardScreen(
     AdminDashboardContent(
         uiState = uiState,
         nombreUsuario = usuarioActual?.nombreCompleto ?: "Subgerente",
-        onGestionUsuarios = onGestionUsuarios,
+        onVolverInicio = onVolverInicio,
         onAjustes = onAjustes,
         onCerrarSesion = {
             usuarioViewModel.cerrarSesion()
@@ -96,7 +99,7 @@ fun AdminDashboardScreen(
 fun AdminDashboardContent(
     uiState: AdminDashboardUiState,
     nombreUsuario: String = "Subgerente",
-    onGestionUsuarios: () -> Unit = {},
+    onVolverInicio: () -> Unit = {},
     onAjustes: () -> Unit = {},
     onCerrarSesion: () -> Unit = {}
 ) {
@@ -133,21 +136,13 @@ fun AdminDashboardContent(
                     label = { Text("Inicio") },
                     icon = { Icon(Icons.Default.Home, contentDescription = null) },
                     selected = true,
-                    onClick = { scope.launch { drawerState.close() } },
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                )
-                NavigationDrawerItem(
-                    label = { Text("Gestionar Usuarios") },
-                    icon = { Icon(Icons.Default.People, contentDescription = null) },
-                    selected = false,
-                    onClick = {
-                        scope.launch { drawerState.close() }
-                        onGestionUsuarios()
+                    onClick = { scope.launch { drawerState.close() }
+                    onVolverInicio()
                     },
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
                 NavigationDrawerItem(
-                    label = { Text("Ajustes") },
+                    label = { Text("Ajustes Administrador") },
                     icon = { Icon(Icons.Default.Settings, contentDescription = null) },
                     selected = false,
                     onClick = {
@@ -243,12 +238,23 @@ fun AdminDashboardContent(
                 GraficoFlujo(datos = uiState.flujoPorHora)
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = "Historial Reciente de Conteos",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.historial),
+                        contentDescription = null, // O "Ícono historial" si requiere descripción
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(20.dp) // Ajusta el tamaño según lo necesites
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Historial Reciente de Conteos",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
 
                 uiState.listaSesiones.forEach { sesion ->

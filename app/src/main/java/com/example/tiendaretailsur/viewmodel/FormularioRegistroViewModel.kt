@@ -85,7 +85,7 @@ class FormularioRegistroViewModel(
     fun onRegistrar() {
         val estado = _uiState.value
 
-        val errorRut = if (!validarFormatoRut(estado.rut)) "El RUT no tiene un formato válido" else null
+        var errorRut = if (!validarFormatoRut(estado.rut)) "El RUT no tiene un formato válido" else null
         val errorNombre = if (estado.nombre.isBlank()) "El nombre es obligatorio" else null
         val errorCorreo = if (!estado.correo.contains("@") || !estado.correo.contains(".")) {
             "Ingrese un correo válido"
@@ -114,7 +114,11 @@ class FormularioRegistroViewModel(
 
         if (!siHayErrores) {
             val resultado = dbHelper.registroUsuarioFormularioRegistro(estado)
-            guardar = resultado != -1L
+            if (resultado != -1L) {
+                guardar = true
+            } else {
+                errorRut = "El RUT o correo ya se encuentra registrado"
+            }
         }
 
         _uiState.update {

@@ -78,8 +78,8 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                     FormularioRegistroScreen(
                         dbHelper = dbHelper,
                         onIrALoginClick = {
-                            navController.navigate(Ruta.Login.ruta) {
-                                popUpTo(Ruta.Login.ruta) { inclusive = true }
+                            navController.navigate(Ruta.AjustesAdmin.ruta) {
+                                popUpTo(Ruta.AjustesAdmin.ruta) { inclusive = true }
                             }
                         }
                     )
@@ -119,7 +119,7 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                 composable(Ruta.AdminPanel.ruta) {
                     AdminDashboardScreen(
                         dbHelper = dbHelper,
-                        onGestionUsuarios = { navController.navigate(Ruta.AjustesAdmin.ruta) },
+                        onVolverInicio = { navController.navigate(Ruta.MenuPrincipal.ruta) },
                         onAjustes = { navController.navigate(Ruta.AjustesAdmin.ruta) },
                         onCerrarSesionClick = {
                             navController.navigate(Ruta.Login.ruta) {
@@ -134,7 +134,8 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                         dbHelper = dbHelper,
                         seccionInicial = SeccionAjustesAdmin.COLABORADORES,
                         onVolverClick = { navController.popBackStack() },
-                        onIrAMiPerfilClick = { navController.navigate(Ruta.Perfil.ruta) }
+                        onIrAMiPerfilClick = { navController.navigate(Ruta.Perfil.ruta) },
+                        onIrARegistroColaborador = { navController.navigate(Ruta.FormularioRegistro.ruta)}
                     )
                 }
             }

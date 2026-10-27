@@ -10,6 +10,7 @@ import com.example.tiendaretailsur.model.ConfiguracionPerfil
 import com.example.tiendaretailsur.model.DatoGrafico
 import com.example.tiendaretailsur.model.FormularioConteoUiState
 import com.example.tiendaretailsur.model.FormularioRegistroUiState
+import com.example.tiendaretailsur.model.HashUtils
 import com.example.tiendaretailsur.model.RolUsuario
 import com.example.tiendaretailsur.model.Usuario
 
@@ -18,7 +19,7 @@ class UsuarioDbHelper(context: Context)
 
     companion object {
         private const val NOMBRE_BD = "tiendaretailsur.db"
-        private const val VERSION_DB = 3
+        private const val VERSION_DB = 9
 
         private const val TABLA_ROLES = "roles"
         private const val ID_ROL = "id_rol"
@@ -103,13 +104,18 @@ class UsuarioDbHelper(context: Context)
                 "(1, 'P-02','SUBGERENTE', 'Encargado de los reportes y gestión'), " +
                 "(2, 'P-04','OBSERVADOR', 'Toma datos de conteo en terreno')"
 
-        private const val SQL_PRECARGAR_USUARIOS =
-            "INSERT INTO $TABLA_USUARIO ($RUT_USUARIO, $NOMBRE_USUARIO, $CORREO_USUARIO, $CONTRASENA, $TURNO_USUARIO, $PREGUNTA_SEG, $RESPUESTA_SEG, $ROL_USUARIO) VALUES " +
-                    "('12345678-9', 'Gabriel Gómez', 'admin@rincondelsur.cl', '1234', 'N/A', '¿Mascota?', 'perro', 1), " +
-                    "('98765432-1', 'Juan Pérez', 'juan@rincondelsur.cl', '1234', 'Turno Diurno', '¿Mascota?', 'gato', 2), " +
-                    "('18111222-3', 'Camila Soto', 'c.soto@rincondelsur.cl', '1234', 'Turno Vespertino', '¿Mascota?', 'perro', 2), " +
-                    "('19222333-4', 'Mateo Silva', 'm.silva@rincondelsur.cl', '1234', 'Turno Diurno', '¿Mascota?', 'gato', 2), " +
-                    "('17333444-5', 'Valentina Rojas', 'v.rojas@rincondelsur.cl', '1234', 'Turno Vespertino', '¿Mascota?', 'perro', 2)"
+        private val SQL_PRECARGAR_USUARIOS by lazy {
+            val claveHash = HashUtils.generarHash("1234")
+            val respPerroHash = HashUtils.generarHashRespuesta("perro")
+            val respGatoHash = HashUtils.generarHashRespuesta("gato")
+
+            "INSERT INTO $TABLA_USUARIO ($RUT_USUARIO, $NOMBRE_USUARIO, $CORREO_USUARIO, $TELEFONO, $CONTRASENA, $TURNO_USUARIO, $PREGUNTA_SEG, $RESPUESTA_SEG, $ROL_USUARIO) VALUES " +
+                    "('12345678-9', 'Gabriel Gómez', 'admin@rincondelsur.cl', '912345678', '$claveHash', 'N/A', '¿Mascota?', '$respPerroHash', 1), " +
+                    "('98765432-1', 'Juan Pérez', 'juan@rincondelsur.cl', '987654321', '$claveHash', 'Turno Diurno', '¿Mascota?', '$respGatoHash', 2), " +
+                    "('18111222-3', 'Camila Soto', 'c.soto@rincondelsur.cl', '911223344', '$claveHash', 'Turno Vespertino', '¿Mascota?', '$respPerroHash', 2), " +
+                    "('19222333-4', 'Mateo Silva', 'm.silva@rincondelsur.cl', '955667788', '$claveHash', 'Turno Diurno', '¿Mascota?', '$respGatoHash', 2), " +
+                    "('17333444-5', 'Valentina Rojas', 'v.rojas@rincondelsur.cl', '999887766', '$claveHash', 'Turno Vespertino', '¿Mascota?', '$respPerroHash', 2)"
+        }
 
         private const val SQL_PRECARGAR_PUERTAS =
             "INSERT INTO $TABLA_PUERTAS ($ID_PUERTA, $NOMBRE_PUERTA, $DESCRIPCION_PUERTA) VALUES " +
@@ -160,6 +166,42 @@ class UsuarioDbHelper(context: Context)
             db.execSQL(SQL_CREAR_PUERTAS)
             db.execSQL(SQL_PRECARGAR_PUERTAS)
         }
+        if (oldVersion < 9) {
+            db.execSQL("DROP TABLE IF EXISTS $TABLA_CONTEO")
+            db.execSQL("DROP TABLE IF EXISTS $TABLA_USUARIO")
+            db.execSQL("DROP TABLE IF EXISTS $TABLA_PUERTAS")
+            db.execSQL("DROP TABLE IF EXISTS $TABLA_ROLES")
+            onCreate(db)
+        }
+    }
+
+    fun listarUsuarios(): List<Usuario> {
+        val lista = mutableListOf<Usuario>()
+        val sql = "SELECT u.*, r.$NOMBRE_ROL AS $NOMBRE_ROL " +
+                "FROM $TABLA_USUARIO u " +
+                "INNER JOIN $TABLA_ROLES r ON u.$ROL_USUARIO = r.$ID_ROL " +
+                "ORDER BY u.$ID_USUARIO ASC"
+        readableDatabase.rawQuery(sql, null).use { cursor ->
+            while (cursor.moveToNext()) {
+                lista.add(leerUsuario(cursor))
+            }
+        }
+        return lista
+    }
+
+    fun actualizarUsuario(rut: String, nombre: String, correo: String, telefono: String): Int {
+        val db = writableDatabase
+        val valores = ContentValues().apply {
+            put(NOMBRE_USUARIO, nombre)
+            put(CORREO_USUARIO, correo)
+            put(TELEFONO, telefono)
+        }
+        return db.update(
+            TABLA_USUARIO,
+            valores,
+            "$RUT_USUARIO = ?",
+            arrayOf(rut)
+        )
     }
 
 
@@ -211,7 +253,6 @@ class UsuarioDbHelper(context: Context)
         )
     }
 
-
     fun actualizarAvatarPorCorreo(correo: String, avatar: ByteArray): Int {
         val valores = ContentValues().apply { put(AVATAR_USUARIO, avatar) }
         return writableDatabase.update(
@@ -235,7 +276,7 @@ class UsuarioDbHelper(context: Context)
         return null
     }
 
-    fun registroUsuarioFormularioRegistro(uiState: FormularioRegistroUiState) : Long{
+    fun registroUsuarioFormularioRegistro(uiState: FormularioRegistroUiState): Long {
         val db = writableDatabase
 
         val valores = ContentValues().apply {
@@ -243,14 +284,13 @@ class UsuarioDbHelper(context: Context)
             put(NOMBRE_USUARIO, uiState.nombre)
             put(CORREO_USUARIO, uiState.correo)
             put(TELEFONO, uiState.telefono)
-            put(CONTRASENA, uiState.contrasena)
+            put(CONTRASENA, HashUtils.generarHash(uiState.contrasena))
             put(ROL_USUARIO, uiState.rolSeleccionado.id)
             put(PREGUNTA_SEG, uiState.preguntaSeleccionada)
-            put(RESPUESTA_SEG, uiState.respuestaSeguridad.trim().lowercase())
+            put(RESPUESTA_SEG, HashUtils.generarHashRespuesta(uiState.respuestaSeguridad))
             put(TURNO_USUARIO, "Turno Diurno")
         }
         return db.insert(TABLA_USUARIO, null, valores)
-
     }
     fun obtenerPreguntaSeguridad(rutOCorreo: String) : String? {
         val db = readableDatabase
@@ -262,13 +302,14 @@ class UsuarioDbHelper(context: Context)
         }
         return null
     }
-    fun verificarRespuesta(rutOCorreo: String, respuestaIngresada: String) : Boolean{
+    fun verificarRespuesta(rutOCorreo: String, respuestaIngresada: String): Boolean {
         val db = readableDatabase
         val sql = "SELECT $RESPUESTA_SEG FROM $TABLA_USUARIO WHERE $RUT_USUARIO = ? OR $CORREO_USUARIO = ?"
         db.rawQuery(sql, arrayOf(rutOCorreo, rutOCorreo)).use { cursor ->
             if (cursor.moveToFirst()) {
                 val respuestaGuardada = cursor.getString(cursor.getColumnIndexOrThrow(RESPUESTA_SEG))
-                return respuestaGuardada.equals(respuestaIngresada.trim().lowercase(), ignoreCase = true)
+                val hashIngresado = HashUtils.generarHashRespuesta(respuestaIngresada)
+                return hashIngresado == respuestaGuardada
             }
         }
         return false
@@ -276,7 +317,7 @@ class UsuarioDbHelper(context: Context)
     fun actualizarContrasena(rutOCorreo: String, nuevaContrasena: String): Int {
         val db = writableDatabase
         val valores = ContentValues().apply {
-            put(CONTRASENA, nuevaContrasena)
+            put(CONTRASENA, HashUtils.generarHash(nuevaContrasena))
         }
         return db.update(
             TABLA_USUARIO,
@@ -413,23 +454,26 @@ class UsuarioDbHelper(context: Context)
     }
 
     fun autenticarUsuario(correo: String, contrasena: String): Usuario? {
+        val hashIngresado = HashUtils.generarHash(contrasena)
         val inicioSesion = "SELECT u.*, r.$NOMBRE_ROL AS $NOMBRE_ROL " +
                 "FROM $TABLA_USUARIO u " +
                 "INNER JOIN $TABLA_ROLES r ON u.$ROL_USUARIO = r.$ID_ROL " +
-                "WHERE u.$CORREO_USUARIO = ? AND u.$CONTRASENA = ?"
+                "WHERE (u.$CORREO_USUARIO = ? OR u.$RUT_USUARIO = ?) AND u.$CONTRASENA = ?"
 
-        readableDatabase.rawQuery(inicioSesion, arrayOf(correo, contrasena)).use {cursor ->
-            if(cursor.moveToFirst()){
+        readableDatabase.rawQuery(inicioSesion, arrayOf(correo, correo, hashIngresado)).use { cursor ->
+            if (cursor.moveToFirst()) {
                 return leerUsuario(cursor)
             }
         }
         return null
-
     }
     private fun leerUsuario(cursor : Cursor) = Usuario(
         nombreCompleto = cursor.getString(cursor.getColumnIndexOrThrow(NOMBRE_USUARIO)),
         rut = cursor.getString(cursor.getColumnIndexOrThrow(RUT_USUARIO)),
         correo = cursor.getString(cursor.getColumnIndexOrThrow(CORREO_USUARIO)),
+        telefono = cursor.getColumnIndexOrThrow(TELEFONO).let { col ->
+            if (cursor.isNull(col)) "" else cursor.getString(col)
+        },
         passwordHash = cursor.getString(cursor.getColumnIndexOrThrow(CONTRASENA)),
         perfil = cursor.getString(cursor.getColumnIndexOrThrow(NOMBRE_ROL)),
         avatar = cursor.getColumnIndexOrThrow(AVATAR_USUARIO).let { columna ->

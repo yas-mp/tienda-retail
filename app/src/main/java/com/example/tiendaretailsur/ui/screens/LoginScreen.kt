@@ -32,6 +32,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -74,6 +75,13 @@ fun LoginScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    //  Navegación automática tan pronto el login sea exitoso
+    LaunchedEffect(uiState.loginExitoso, uiState.usuarioAutenticado) {
+        if (uiState.loginExitoso && uiState.usuarioAutenticado != null) {
+            onLoginSuccess(uiState.usuarioAutenticado!!)
+        }
+    }
+
     LoginContent(
         uiState = uiState,
         onCorreoChanged = viewModel::onCorreoChanged,
@@ -81,11 +89,6 @@ fun LoginScreen(
         onTogglePasswordVisibility = viewModel::togglePasswordVisibility,
         onLoginClick = {
             viewModel.login()
-            uiState.usuarioAutenticado?.let { usuario ->
-                if (uiState.loginExitoso) {
-                    onLoginSuccess(usuario)
-                }
-            }
         },
         onOlvideContrasenaClick = onOlvideContrasenaClick,
         onCrearCuentaClick = onCrearCuentaClick
@@ -475,7 +478,7 @@ private fun MensajeLoginExitoso(usuario: Usuario) {
                     color = Exito
                 )
                 Text(
-                    text = "${usuario.cargo} • Perfil ${usuario.perfil} (RUT: ${usuario.rut})",
+                    text = "• Perfil ${usuario.perfil} (RUT: ${usuario.rut})",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimary
                 )

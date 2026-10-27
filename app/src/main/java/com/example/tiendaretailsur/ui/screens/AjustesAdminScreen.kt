@@ -20,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
@@ -32,6 +33,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -57,7 +59,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -72,7 +73,6 @@ import com.example.tiendaretailsur.model.Usuario
 import com.example.tiendaretailsur.permisos.Permisos
 import com.example.tiendaretailsur.ui.theme.Exito
 import com.example.tiendaretailsur.ui.theme.ExitoFondo
-import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 import com.example.tiendaretailsur.viewmodel.AjustesAdminViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,7 +86,8 @@ fun AjustesAdminScreen(
         }
     ),
     onVolverClick: () -> Unit = {},
-    onIrAMiPerfilClick: () -> Unit = {}
+    onIrAMiPerfilClick: () -> Unit = {},
+    onIrARegistroColaborador: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -193,7 +194,8 @@ fun AjustesAdminScreen(
                         onBusquedaCambia = viewModel::onBusquedaCambia,
                         onFiltroPerfilCambia = viewModel::onFiltroPerfilCambia,
                         onAlternarActivo = viewModel::alternarEstadoUsuario,
-                        onEditarClick = viewModel::abrirEditorUsuario
+                        onEditarClick = viewModel::abrirEditorUsuario,
+                        onIrARegistroColaborador = onIrARegistroColaborador
                     )
                 }
                 SeccionAjustesAdmin.PERFILES -> {
@@ -234,7 +236,7 @@ fun AjustesAdminScreen(
             )
         }
 
-        // Modal de edición de perfil de la app (P-01 a P-04)
+        // Modal de edición de perfil de la app
         if (uiState.perfilEnEdicion != null) {
             DialogoEditarPerfil(
                 uiState = uiState,
@@ -255,7 +257,8 @@ private fun SeccionColaboradoresContent(
     onBusquedaCambia: (String) -> Unit,
     onFiltroPerfilCambia: (String) -> Unit,
     onAlternarActivo: (Usuario, Boolean) -> Unit,
-    onEditarClick: (Usuario) -> Unit
+    onEditarClick: (Usuario) -> Unit,
+    onIrARegistroColaborador: () -> Unit
 ) {
     val usuariosFiltrados = uiState.usuarios.filter { u ->
         val coincideTexto = uiState.busqueda.isBlank() ||
@@ -309,26 +312,39 @@ private fun SeccionColaboradoresContent(
             shape = RoundedCornerShape(12.dp)
         )
 
-        // Filtros por perfil (P-01 a P-04)
+        // Filtros por perfil
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            val opciones = listOf("TODOS", "P-01", "P-02", "P-03", "P-04")
+            val opciones = listOf("TODOS", "SUBGERENTE", "OBSERVADOR")
             opciones.forEach { codigo ->
                 FilterChip(
                     selected = uiState.filtroPerfil == codigo,
                     onClick = { onFiltroPerfilCambia(codigo) },
-                    label = { Text(if (codigo == "TODOS") "Todos los perfiles" else "Perfil $codigo") }
+                    label = { Text(if (codigo == "TODOS") "Todos los perfiles" else codigo) }
                 )
             }
         }
 
+        // Botón Registrar Nuevo Colaborador
+        Button(
+            onClick = onIrARegistroColaborador,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Registrar Nuevo Colaborador", fontWeight = FontWeight.Bold)
+        }
+
         // Lista de tarjetas de colaboradores
         usuariosFiltrados.forEach { usuario ->
-            val perfilHabilitado = uiState.perfiles.find { it.codigo == usuario.perfil }?.habilitado ?: true
+            val perfilHabilitado = uiState.perfiles.find { it.nombre == usuario.perfil || it.codigo == usuario.perfil }?.habilitado ?: true
             TarjetaColaboradorItem(
                 usuario = usuario,
                 perfilGlobalHabilitado = perfilHabilitado,
@@ -411,7 +427,7 @@ private fun TarjetaColaboradorItem(
                         )
                     }
                     Text(
-                        text = "${usuario.cargo} • RUT: ${usuario.rut}",
+                        text = "RUT: ${usuario.rut}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
@@ -510,8 +526,8 @@ private fun SeccionPerfilesContent(
         )
 
         perfiles.forEach { perfil ->
-            val cantidadUsuarios = usuarios.count { it.perfil == perfil.codigo }
-            val cantidadActivos = usuarios.count { it.perfil == perfil.codigo && it.activo }
+            val cantidadUsuarios = usuarios.count { it.perfil == perfil.nombre || it.perfil == perfil.codigo }
+            val cantidadActivos = usuarios.count { (it.perfil == perfil.nombre || it.perfil == perfil.codigo) && it.activo }
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -754,32 +770,20 @@ private fun DialogoEditarUsuario(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = "Modificar Colaborador (${uiState.usuarioEnEdicion?.codigo ?: ""})",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        },
+        title = { Text("Modificar Colaborador") },
         text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
+                modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                if (uiState.errorEdicionUsuario != null) {
-                    Text(
-                        text = uiState.errorEdicionUsuario,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                uiState.errorEdicionUsuario?.let { err ->
+                    Text(text = err, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 }
 
                 OutlinedTextField(
                     value = uiState.editNombre,
                     onValueChange = onNombreCambia,
-                    label = { Text("Nombre completo") },
+                    label = { Text("Nombre Completo") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -789,69 +793,49 @@ private fun DialogoEditarUsuario(
                     onValueChange = onRutCambia,
                     label = { Text("RUT") },
                     singleLine = true,
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = uiState.editCorreo,
                     onValueChange = onCorreoCambia,
-                    label = { Text("Correo electrónico") },
+                    label = { Text("Correo Electrónico") },
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = uiState.editTelefono,
                     onValueChange = onTelefonoCambia,
-                    label = { Text("Teléfono (+56)") },
+                    label = { Text("Teléfono") },
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = uiState.editCargo,
-                    onValueChange = onCargoCambia,
-                    label = { Text("Cargo") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = uiState.editPerfil,
-                    onValueChange = onPerfilCambia,
-                    label = { Text("Código de Perfil (ej: P-04)") },
-                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = uiState.editNuevaContrasena,
                     onValueChange = onNuevaContrasenaCambia,
-                    label = { Text("Nueva contraseña (opcional)") },
+                    label = { Text("Nueva Contraseña (Opcional)") },
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Cuenta activa")
-                    Switch(
-                        checked = uiState.editActivo,
-                        onCheckedChange = onActivoCambia
-                    )
+                    Switch(checked = uiState.editActivo, onCheckedChange = onActivoCambia)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(if (uiState.editActivo) "Usuario Activo" else "Usuario Inactivo")
                 }
             }
         },
         confirmButton = {
             Button(onClick = onGuardar) {
-                Text("Guardar cambios")
+                Text("Guardar Cambios")
             }
         },
         dismissButton = {
@@ -874,24 +858,15 @@ private fun DialogoEditarPerfil(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = "Configurar Perfil ${uiState.perfilEnEdicion?.codigo ?: ""}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        },
+        title = { Text("Configurar Perfil ${uiState.perfilEnEdicion?.codigo}") },
         text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedTextField(
                     value = uiState.editPerfilNombre,
                     onValueChange = onNombreCambia,
-                    label = { Text("Nombre del perfil") },
+                    label = { Text("Nombre del Perfil") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -905,32 +880,26 @@ private fun DialogoEditarPerfil(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Perfil habilitado")
-                    Switch(
-                        checked = uiState.editPerfilHabilitado,
-                        onCheckedChange = onHabilitadoCambia
-                    )
+                    Switch(checked = uiState.editPerfilHabilitado, onCheckedChange = onHabilitadoCambia)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(if (uiState.editPerfilHabilitado) "Perfil Habilitado" else "Perfil Deshabilitado")
                 }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Aplicar estado a todos sus usuarios")
-                    Switch(
-                        checked = uiState.aplicarEstadoATodosLosUsuariosDelPerfil,
-                        onCheckedChange = onAplicarATodosCambia
-                    )
+                    Checkbox(checked = uiState.aplicarEstadoATodosLosUsuariosDelPerfil, onCheckedChange = onAplicarATodosCambia)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Aplicar estado a todos los usuarios de este perfil", style = MaterialTheme.typography.bodySmall)
                 }
             }
         },
         confirmButton = {
             Button(onClick = onGuardar) {
-                Text("Guardar cambios")
+                Text("Guardar")
             }
         },
         dismissButton = {
@@ -939,15 +908,4 @@ private fun DialogoEditarPerfil(
             }
         }
     )
-}
-
-@Preview(showBackground = true, name = "Ajustes Admin Preview")
-@Composable
-fun AjustesAdminScreenPreview() {
-    MiRegistroTheme {
-        // Vista previa con datos locales estáticos sin invocar SQLite
-        Surface {
-            Text("Vista previa de Ajustes Admin")
-        }
-    }
 }

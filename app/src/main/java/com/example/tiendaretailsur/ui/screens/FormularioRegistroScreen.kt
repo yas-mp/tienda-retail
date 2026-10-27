@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,13 +29,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,8 +52,6 @@ import com.example.tiendaretailsur.ui.components.CampoTextoRut
 import com.example.tiendaretailsur.ui.components.CasillaConTexto
 import com.example.tiendaretailsur.ui.components.TituloScreen
 import com.example.tiendaretailsur.ui.theme.Dimens
-import com.example.tiendaretailsur.ui.theme.Exito
-import com.example.tiendaretailsur.ui.theme.ExitoFondo
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 import com.example.tiendaretailsur.viewmodel.FormularioRegistroViewModel
 
@@ -132,7 +129,7 @@ fun FormularioRegistroContent(
                     .background(color = MaterialTheme.colorScheme.background)
             ) {
                 Icon(
-                    painter = painterResource((R.drawable.atras)), // Asegúrate de tener ic_atras o atras.xml
+                    painter = painterResource((R.drawable.atras)),
                     contentDescription = "Volver",
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(20.dp)
@@ -154,7 +151,7 @@ fun FormularioRegistroContent(
                 valor = uiState.rut,
                 onValorCambia = onRutCambia,
                 etiqueta = stringResource(R.string.campo_rut),
-                icono = R.drawable.rut, // Asegúrate de tener este icono
+                icono = R.drawable.rut,
                 error = uiState.errorFormatoRut
             )
             Spacer(modifier = Modifier.height(Dimens.espacioInterno))
@@ -182,7 +179,7 @@ fun FormularioRegistroContent(
                 valor = uiState.telefono,
                 onValorCambia = onTelefonoCambia,
                 etiqueta = stringResource(R.string.campo_telefono),
-                icono = R.drawable.telefono, // Asegúrate de tener este icono
+                icono = R.drawable.telefono,
                 error = uiState.errorTelefono,
                 tipoTeclado = KeyboardType.Phone
             )
@@ -197,7 +194,7 @@ fun FormularioRegistroContent(
                 valor = uiState.correo,
                 onValorCambia = onCorreoCambia,
                 etiqueta = stringResource(R.string.campo_correo),
-                icono = R.drawable.correo, // Asegúrate de tener este icono
+                icono = R.drawable.correo,
                 error = uiState.errorFormatoCorreo,
                 tipoTeclado = KeyboardType.Email
             )
@@ -336,36 +333,37 @@ fun FormularioRegistroContent(
             }
             Spacer(modifier = Modifier.height(10.dp))
 
+            // ALERTA DE REGISTRO EXITOSO
             if (uiState.registroExitoso) {
-                MensajeExitoso(uiState.nombre)
+                AlertDialog(
+                    onDismissRequest = {
+                        onLimpiarFormulario()
+                        onIrALoginClick()
+                    },
+                    title = {
+                        Text(
+                            text = "¡Registro Exitoso!",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    text = {
+                        Text("El colaborador ${uiState.nombre} ha sido registrado correctamente en el sistema.")
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                onLimpiarFormulario()
+                                onIrALoginClick()
+                            }
+                        ) {
+                            Text("Aceptar")
+                        }
+                    }
+                )
             }
 
             Spacer(Modifier.height(Dimens.espacioPantalla))
-        }
-    }
-}
-
-@Composable
-private fun MensajeExitoso(nombre: String) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = ExitoFondo, contentColor = Exito)
-    ) {
-        Row(
-            modifier = Modifier.padding(Dimens.espacioPequeno),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_check),
-                contentDescription = null,
-                tint = Exito,
-                modifier = Modifier.size(Dimens.tamanoIcono)
-            )
-            Text(
-                text = stringResource(R.string.registro_exitoso, nombre),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(start = Dimens.espacioPequeno)
-            )
         }
     }
 }

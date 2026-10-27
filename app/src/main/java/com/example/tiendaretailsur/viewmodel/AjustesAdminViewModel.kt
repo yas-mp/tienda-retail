@@ -24,17 +24,38 @@ class AjustesAdminViewModel(
     }
 
     fun recargarDatos() {
+        val usuariosBd = try {
+            dbHelper.listarUsuarios()
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+        val perfilesBd = try {
+            dbHelper.listarPerfiles()
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+        val puertasBd = try {
+            dbHelper.listarPuertas()
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+        val accesosConfig = puertasBd.map { puerta ->
+            ConfiguracionAcceso(
+                codigo = puerta.id,
+                nombre = puerta.nombre,
+                ubicacion = puerta.descripcion,
+                habilitado = true
+            )
+        }
+
         _uiState.update {
             it.copy(
-                perfiles = dbHelper.listarPerfiles(),
-                accesos = dbHelper.listarPuertas().map { puerta ->
-                    ConfiguracionAcceso(
-                        codigo = puerta.id,
-                        nombre = puerta.nombre,
-                        ubicacion = puerta.descripcion,
-                        habilitado = true
-                    )
-                },
+                usuarios = usuariosBd,
+                perfiles = perfilesBd,
+                accesos = accesosConfig,
                 metaConversionTexto = "15.0"
             )
         }
@@ -55,18 +76,23 @@ class AjustesAdminViewModel(
     fun limpiarMensaje() {
         _uiState.update { it.copy(mensajeConfirmacion = null) }
     }
-
-    // Habilitar / Deshabilitar colaborador
     fun alternarEstadoUsuario(usuario: Usuario, nuevoEstado: Boolean) {
         val estadoTexto = if (nuevoEstado) "habilitado" else "deshabilitado"
-        _uiState.update {
-            it.copy(
+
+        _uiState.update { estadoActual ->
+            val listaActualizada = estadoActual.usuarios.map { u ->
+                if (u.rut == usuario.rut) {
+                    u.copy(activo = nuevoEstado)
+                } else {
+                    u
+                }
+            }
+            estadoActual.copy(
+                usuarios = listaActualizada,
                 mensajeConfirmacion = "Colaborador ${usuario.nombreCompleto} $estadoTexto"
             )
         }
     }
-
-    // Abrir modal para editar colaborador
     fun abrirEditorUsuario(usuario: Usuario) {
         _uiState.update {
             it.copy(
@@ -137,18 +163,28 @@ class AjustesAdminViewModel(
             _uiState.update { it.copy(errorEdicionUsuario = "El teléfono debe tener al menos 8 dígitos") }
             return
         }
-        if (estado.editNuevaContrasena.isNotBlank() && estado.editNuevaContrasena.length < 8) {
-            _uiState.update { it.copy(errorEdicionUsuario = "La nueva contraseña debe tener mínimo 8 caracteres") }
+        if (estado.editNuevaContrasena.isNotBlank() && estado.editNuevaContrasena.length < 4) {
+            _uiState.update { it.copy(errorEdicionUsuario = "La nueva contraseña debe tener mínimo 4 caracteres") }
             return
         }
 
-        // Si ingresó una nueva contraseña opcional, actualizamos en la BD
-        if (estado.editNuevaContrasena.isNotBlank()) {
-            dbHelper.actualizarContrasena(
-                rutOCorreo = usuarioOriginal.rut,
-                nuevaContrasena = estado.editNuevaContrasena
+        try {
+            dbHelper.actualizarUsuario(
+                rut = usuarioOriginal.rut,
+                nombre = estado.editNombre,
+                correo = estado.editCorreo,
+                telefono = estado.editTelefono
             )
+            if (estado.editNuevaContrasena.isNotBlank()) {
+                dbHelper.actualizarContrasena(
+                    rutOCorreo = usuarioOriginal.rut,
+                    nuevaContrasena = estado.editNuevaContrasena
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+        recargarDatos()
 
         _uiState.update {
             it.copy(
@@ -158,12 +194,18 @@ class AjustesAdminViewModel(
             )
         }
     }
-
-    // Configuración de Perfiles (P-01 a P-04)
     fun alternarEstadoPerfil(perfil: ConfiguracionPerfil, habilitado: Boolean) {
         val textoEstado = if (habilitado) "habilitado" else "deshabilitado"
-        _uiState.update {
-            it.copy(
+        _uiState.update { estadoActual ->
+            val listaPerfilesActualizada = estadoActual.perfiles.map { p ->
+                if (p.codigo == perfil.codigo) {
+                    p.copy(habilitado = habilitado)
+                } else {
+                    p
+                }
+            }
+            estadoActual.copy(
+                perfiles = listaPerfilesActualizada,
                 mensajeConfirmacion = "Perfil ${perfil.codigo} (${perfil.nombre}) $textoEstado"
             )
         }
@@ -214,7 +256,7 @@ class AjustesAdminViewModel(
         }
     }
 
-    // Ajustes de Tienda: Meta de Conversión y Accesos A1 a A4
+    // Ajustes de Tienda
     fun onMetaConversionCambia(valor: String) {
         _uiState.update { it.copy(metaConversionTexto = valor) }
     }
@@ -236,8 +278,16 @@ class AjustesAdminViewModel(
 
     fun alternarEstadoAcceso(codigoAcceso: String, habilitado: Boolean) {
         val estadoTexto = if (habilitado) "operativo" else "cerrado por evento/mantención"
-        _uiState.update {
-            it.copy(
+        _uiState.update { estadoActual ->
+            val accesosActualizados = estadoActual.accesos.map { acceso ->
+                if (acceso.codigo == codigoAcceso) {
+                    acceso.copy(habilitado = habilitado)
+                } else {
+                    acceso
+                }
+            }
+            estadoActual.copy(
+                accesos = accesosActualizados,
                 mensajeConfirmacion = "Acceso $codigoAcceso marcado como $estadoTexto"
             )
         }

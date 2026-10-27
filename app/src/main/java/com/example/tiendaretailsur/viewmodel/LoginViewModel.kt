@@ -1,14 +1,16 @@
 package com.example.tiendaretailsur.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.model.LoginUiState
-import com.example.tiendaretailsur.model.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val dbHelper: UsuarioDbHelper
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -31,40 +33,37 @@ class LoginViewModel : ViewModel() {
 
     fun login() {
         val currentState = _uiState.value
-        if (currentState.correo.isBlank()) {
+        val correoOIdentificador = currentState.correo.trim()
+        val contrasena = currentState.contrasena.trim()
+
+        if (correoOIdentificador.isBlank()) {
             _uiState.update { it.copy(errorCorreo = "Ingresa tu correo o RUT") }
             return
         }
-        if (currentState.contrasena.isBlank()) {
+        if (contrasena.isBlank()) {
             _uiState.update { it.copy(errorContrasena = "La contraseña es requerida") }
             return
         }
 
-        val resultado = UsuarioRepository.autenticar(
-            identificador = currentState.correo,
-            contrasenaPlana = currentState.contrasena
-        )
+        val usuario = dbHelper.autenticarUsuario(correoOIdentificador, contrasena)
 
-        resultado.fold(
-            onSuccess = { usuario ->
-                _uiState.update {
-                    it.copy(
-                        loginExitoso = true,
-                        usuarioAutenticado = usuario,
-                        errorCorreo = null,
-                        errorContrasena = null,
-                        mensajeExitoLogin = "Bienvenido/a ${usuario.nombreCompleto} (${usuario.perfil})"
-                    )
-                }
-            },
-            onFailure = { error ->
-                _uiState.update {
-                    it.copy(
-                        loginExitoso = false,
-                        errorContrasena = error.message
-                    )
-                }
+        if (usuario != null) {
+            _uiState.update {
+                it.copy(
+                    loginExitoso = true,
+                    usuarioAutenticado = usuario,
+                    errorCorreo = null,
+                    errorContrasena = null,
+                    mensajeExitoLogin = "Bienvenido/a ${usuario.nombreCompleto} (${usuario.perfil})"
+                )
             }
-        )
+        } else {
+            _uiState.update {
+                it.copy(
+                    loginExitoso = false,
+                    errorContrasena = "Credenciales incorrectas o usuario no encontrado"
+                )
+            }
+        }
     }
 }

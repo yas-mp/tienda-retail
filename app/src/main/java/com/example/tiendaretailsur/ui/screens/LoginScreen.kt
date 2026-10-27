@@ -1,5 +1,7 @@
 package com.example.tiendaretailsur.ui.screens
 
+import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,25 +43,65 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.tiendaretailsur.R
+import com.example.tiendaretailsur.data.UsuarioDbHelper
+import com.example.tiendaretailsur.model.LoginUiState
 import com.example.tiendaretailsur.model.Usuario
 import com.example.tiendaretailsur.ui.theme.Dimens
 import com.example.tiendaretailsur.ui.theme.Exito
 import com.example.tiendaretailsur.ui.theme.ExitoFondo
 import com.example.tiendaretailsur.ui.theme.GrisDeshabilitada
+import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 import com.example.tiendaretailsur.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel(),
+    dbHelper: UsuarioDbHelper,
+    viewModel: LoginViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { LoginViewModel(dbHelper) }
+        }
+    ),
     onLoginSuccess: (Usuario) -> Unit = {},
     onOlvideContrasenaClick: () -> Unit = {},
     onCrearCuentaClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LoginContent(
+        uiState = uiState,
+        onCorreoChanged = viewModel::onCorreoChanged,
+        onContrasenaChanged = viewModel::onContrasenaChanged,
+        onTogglePasswordVisibility = viewModel::togglePasswordVisibility,
+        onLoginClick = {
+            viewModel.login()
+            uiState.usuarioAutenticado?.let { usuario ->
+                if (uiState.loginExitoso) {
+                    onLoginSuccess(usuario)
+                }
+            }
+        },
+        onOlvideContrasenaClick = onOlvideContrasenaClick,
+        onCrearCuentaClick = onCrearCuentaClick
+    )
+}
+
+@Composable
+fun LoginContent(
+    uiState: LoginUiState,
+    onCorreoChanged: (String) -> Unit = {},
+    onContrasenaChanged: (String) -> Unit = {},
+    onTogglePasswordVisibility: () -> Unit = {},
+    onLoginClick: () -> Unit = {},
+    onOlvideContrasenaClick: () -> Unit = {},
+    onCrearCuentaClick: () -> Unit = {}
+) {
     val colores = MaterialTheme.colorScheme
     val tipografia = MaterialTheme.typography
     val formas = MaterialTheme.shapes
@@ -109,7 +151,8 @@ fun LoginScreen(
             // Tarjeta Superior ("CADA ACCESO CUENTA")
             Card(
                 shape = formas.large,
-                colors = CardDefaults.cardColors(containerColor = colores.surfaceVariant),
+                colors = CardDefaults.cardColors(containerColor = colores.surface),
+                border = BorderStroke(1.dp, colores.outlineVariant),
                 elevation = CardDefaults.cardElevation(defaultElevation = Dimens.elevacionTarjeta),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -188,7 +231,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(Dimens.espacioChico))
             OutlinedTextField(
                 value = uiState.correo,
-                onValueChange = { viewModel.onCorreoChanged(it) },
+                onValueChange = onCorreoChanged,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = {
                     Text(
@@ -244,7 +287,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(Dimens.espacioChico))
             OutlinedTextField(
                 value = uiState.contrasena,
-                onValueChange = { viewModel.onContrasenaChanged(it) },
+                onValueChange = onContrasenaChanged,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = {
                     Text(
@@ -262,7 +305,7 @@ fun LoginScreen(
                     )
                 },
                 trailingIcon = {
-                    IconButton(onClick = { viewModel.togglePasswordVisibility() }) {
+                    IconButton(onClick = onTogglePasswordVisibility) {
                         val iconoOjo = if (uiState.isPasswordVisible) {
                             R.drawable.ic_ojo
                         } else {
@@ -314,7 +357,7 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.CenterEnd
             ) {
-                TextButton(onClick = { onOlvideContrasenaClick() }) {
+                TextButton(onClick = onOlvideContrasenaClick) {
                     Text(
                         text = stringResource(id = R.string.login_olvide_contrasena),
                         style = tipografia.labelLarge.copy(fontSize = 13.sp),
@@ -327,14 +370,7 @@ fun LoginScreen(
 
             // Botón Principal "Iniciar sesión ->"
             Button(
-                onClick = {
-                    viewModel.login()
-                    uiState.usuarioAutenticado?.let { usuario ->
-                        if (uiState.loginExitoso) {
-                            onLoginSuccess(usuario)
-                        }
-                    }
-                },
+                onClick = onLoginClick,
                 enabled = !uiState.isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -383,19 +419,10 @@ fun LoginScreen(
             Spacer(modifier = Modifier.weight(1f))
             Spacer(modifier = Modifier.height(Dimens.espacioGrande))
 
-            // Footer: Crear cuenta y mensaje de seguridad
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TextButton(onClick = { onCrearCuentaClick() }) {
-                    Text(
-                        text = stringResource(id = R.string.login_no_cuenta),
-                        style = tipografia.bodyMedium,
-                        color = colores.onBackground
-                    )
-                }
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
@@ -454,5 +481,35 @@ private fun MensajeLoginExitoso(usuario: Usuario) {
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Modo Claro")
+@Composable
+fun LoginScreenClaroPreview() {
+    MiRegistroTheme(darkTheme = false) {
+        LoginContent(
+            uiState = LoginUiState(
+                correo = "admin@rincondelsur.cl",
+                contrasena = "1234"
+            )
+        )
+    }
+}
+
+@Preview(
+    showBackground = true,
+    name = "Modo Oscuro",
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun LoginScreenOscuroPreview() {
+    MiRegistroTheme(darkTheme = true) {
+        LoginContent(
+            uiState = LoginUiState(
+                correo = "admin@rincondelsur.cl",
+                contrasena = "1234"
+            )
+        )
     }
 }

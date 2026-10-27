@@ -31,6 +31,7 @@ import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
     var isAdmin by rememberSaveable { mutableStateOf(true) }
     var isDarkTheme by rememberSaveable { mutableStateOf(initialDarkTheme) }
+    var correoUsuarioLogueado by rememberSaveable { mutableStateOf("admin@rincondelsur.cl") }
 
     val context = LocalContext.current
     val dbHelper = remember { UsuarioDbHelper(context) }
@@ -49,6 +50,7 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                     LoginScreen(
                         dbHelper = dbHelper,
                         onLoginSuccess = { usuarioAutenticado ->
+                            correoUsuarioLogueado = usuarioAutenticado.correo
                             isAdmin = usuarioAutenticado.perfil in listOf("P-01", "P-02", "SUBGERENTE")
                             navController.navigate(Ruta.MenuPrincipal.ruta) {
                                 popUpTo(Ruta.Login.ruta) { inclusive = true }
@@ -103,6 +105,7 @@ fun NavegacionApp(initialDarkTheme: Boolean = isSystemInDarkTheme()) {
                 composable(Ruta.Perfil.ruta) {
                     PerfilScreen(
                         isAdmin = isAdmin,
+                        correoLogueado = correoUsuarioLogueado,
                         onVolver = {
                             navController.popBackStack()
                         }

@@ -34,6 +34,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,8 +48,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.tiendaretailsur.R
 import com.example.tiendaretailsur.data.ConvertidorImagen
+import com.example.tiendaretailsur.data.UsuarioDbHelper
 import com.example.tiendaretailsur.permisos.Permisos
 import com.example.tiendaretailsur.ui.components.AvatarCircular
 import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
@@ -60,9 +64,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun PerfilScreen(
     isAdmin: Boolean = true,
+    correoLogueado: String = "admin@rincondelsur.cl",
+    dbHelper: UsuarioDbHelper = UsuarioDbHelper(LocalContext.current),
     onVolver: () -> Unit = {},
-    viewModel: PerfilViewModel = viewModel()
+    viewModel: PerfilViewModel = viewModel(
+        factory = viewModelFactory {
+            initializer { PerfilViewModel(dbHelper) }
+        }
+    )
 ) {
+    LaunchedEffect(correoLogueado) {
+        viewModel.cargarPerfil(correoLogueado)
+    }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val perfil = uiState.perfil
     val context = LocalContext.current

@@ -210,6 +210,31 @@ class UsuarioDbHelper(context: Context)
             arrayOf(id.toString())
         )
     }
+
+
+    fun actualizarAvatarPorCorreo(correo: String, avatar: ByteArray): Int {
+        val valores = ContentValues().apply { put(AVATAR_USUARIO, avatar) }
+        return writableDatabase.update(
+            TABLA_USUARIO,
+            valores,
+            "$CORREO_USUARIO = ? OR $RUT_USUARIO = ?",
+            arrayOf(correo, correo)
+        )
+    }
+
+    fun obtenerUsuarioPorCorreo(correo: String): Usuario? {
+        val sql = "SELECT u.*, r.$NOMBRE_ROL AS $NOMBRE_ROL " +
+                "FROM $TABLA_USUARIO u " +
+                "INNER JOIN $TABLA_ROLES r ON u.$ROL_USUARIO = r.$ID_ROL " +
+                "WHERE u.$CORREO_USUARIO = ? OR u.$RUT_USUARIO = ?"
+        readableDatabase.rawQuery(sql, arrayOf(correo, correo)).use { cursor ->
+            if (cursor.moveToFirst()) {
+                return leerUsuario(cursor)
+            }
+        }
+        return null
+    }
+
     fun registroUsuarioFormularioRegistro(uiState: FormularioRegistroUiState) : Long{
         val db = writableDatabase
 

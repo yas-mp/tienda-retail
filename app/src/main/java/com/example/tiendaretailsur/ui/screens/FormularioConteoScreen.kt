@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +60,7 @@ fun FormularioConteoScreen(
         onSeleccionarEdad = viewModel::seleccionarRangoEtario,
         onSeleccionarCompania = viewModel::seleccionarCompania,
         onEnviar = viewModel::enviarFormulario,
+        onDismissExitoso = viewModel::limpiarExitoso,
         onVolver = onVolver
     )
 }
@@ -74,6 +77,7 @@ fun FormularioConteoContent(
     onSeleccionarEdad: (String) -> Unit,
     onSeleccionarCompania: (String) -> Unit,
     onEnviar: () -> Unit,
+    onDismissExitoso: () -> Unit = {},
     onVolver: () -> Unit
 ) {
     Surface(
@@ -90,25 +94,25 @@ fun FormularioConteoContent(
             // Encabezado con botón de volver
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                OutlinedButton(onClick = onVolver) {
+                    Text("Vovler Accesos")
+                }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Registro de Aforo en Vivo",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "Puerta de Acceso Activa: ${uiState.puertaAcceso}",
+                        text = "Puerta Activa: ${uiState.puertaAcceso}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
-                }
-                OutlinedButton(onClick = onVolver) {
-                    Text("← Cambiar")
                 }
             }
 
@@ -257,16 +261,49 @@ fun FormularioConteoContent(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(text = "Tipo de Compañía", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    FlowRow(
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        listOf("Solo", "Pareja", "Con niños", "Grupo").forEach { comp ->
-                            FilterChip(
-                                selected = uiState.compania == comp,
-                                onClick = { onSeleccionarCompania(comp) },
-                                label = { Text(comp) }
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            listOf("Solo", "Pareja").forEach { comp ->
+                                FilterChip(
+                                    modifier = Modifier.weight(1f),
+                                    selected = uiState.compania == comp,
+                                    onClick = { onSeleccionarCompania(comp) },
+                                    label = {
+                                        Text(
+                                            text = comp,
+                                            maxLines = 1,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            listOf("Con niños", "Grupo").forEach { comp ->
+                                FilterChip(
+                                    modifier = Modifier.weight(1f),
+                                    selected = uiState.compania == comp,
+                                    onClick = { onSeleccionarCompania(comp) },
+                                    label = {
+                                        Text(
+                                            text = comp,
+                                            maxLines = 1,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -285,17 +322,16 @@ fun FormularioConteoContent(
             }
 
             if (uiState.envioExitoso) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "¡Registro enviado con éxito para la puerta ${uiState.puertaAcceso}!",
-                        modifier = Modifier.padding(16.dp),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                AlertDialog(
+                    onDismissRequest = onDismissExitoso,
+                    title = { Text("¡Registro Exitoso!") },
+                    text = { Text("Se ha registrado correctamente el aforo para la puerta ${uiState.puertaAcceso}.") },
+                    confirmButton = {
+                        Button(onClick = onDismissExitoso) {
+                            Text("Aceptar")
+                        }
+                    }
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))

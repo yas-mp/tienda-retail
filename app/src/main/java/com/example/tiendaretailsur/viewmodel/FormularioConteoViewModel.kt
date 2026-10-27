@@ -55,10 +55,10 @@ class FormularioConteoViewModel : AndroidViewModel {
     fun enviarFormulario() {
         val estado = _uiState.value
         dbHelper?.registrarFormularioConteo(estado, "Andrea Valencia", "12h")
-        _uiState.update { it.copy(envioExitoso = true) }
+        _uiState.update { FormularioConteoUiState(puertaAcceso = it.puertaAcceso, envioExitoso = true) }
     }
 
-    fun limpiarFormulario() {
-        _uiState.update { FormularioConteoUiState(puertaAcceso = it.puertaAcceso) }
+    fun limpiarExitoso() {
+        _uiState.update { it.copy(envioExitoso = false) }
     }
 }

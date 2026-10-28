@@ -121,7 +121,7 @@ fun MenuPrincipalScreen(
                 )
                 if (isAdmin) {
                     NavigationDrawerItem(
-                        label = { Text("Panel Avanzado (Dashboard)") },
+                        label = { Text("Panel Avanzado") },
                         icon = { Icon(Icons.Default.Store, contentDescription = null) },
                         selected = false,
                         onClick = {

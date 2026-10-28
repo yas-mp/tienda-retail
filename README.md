@@ -1,4 +1,4 @@
-# Tienda Retail Sur (MiRegistro)
+# Tienda Retail Sur (Rincon del sur)
 
 Aplicación móvil desarrollada en **Jetpack Compose** y **Kotlin** bajo arquitectura **MVVM**, diseñada para la gestión de aforos, control de accesos y administración de personal en **Tienda Retail Sur**.
 

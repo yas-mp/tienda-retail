@@ -307,17 +307,19 @@ fun TarjetaResumen(
 
 @Composable
 fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
-    val coloresBarras = listOf(
-        Color(0xFF2196F3),
-        Color(0xFFFF9800)
-    )
+    val colorBarra1 = MaterialTheme.colorScheme.primary
+    val colorBarra2 = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+    val coloresBarras = listOf(colorBarra1, colorBarra2)
 
     val total = datos.sumOf { it.valor }
     val valorMaximo = datos.maxOfOrNull { it.valor }?.toFloat() ?: 100f
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -329,8 +331,11 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
             )
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Tarjeta interna adaptable
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -353,7 +358,7 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
                                     text = "${dato.valor}",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -370,7 +375,7 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
 
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 8.dp),
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
                     )
 
                     Row(
@@ -382,7 +387,7 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
                                 text = dato.etiqueta,
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }
@@ -393,7 +398,7 @@ fun GraficoFlujo(datos: List<DatoGrafico> = emptyList()) {
                         text = "Total: $total",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
@@ -447,11 +452,14 @@ fun MetricasDeFlujo(
 ) {
     val pesoClientes = clientes.coerceAtLeast(0.01f)
     val pesoVisita = visita.coerceAtLeast(0.01f)
+    val colorClientes = MaterialTheme.colorScheme.primary
+    val colorVisita = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -491,7 +499,7 @@ fun MetricasDeFlujo(
                     Text(
                         text = "Tránsito (Pasillo)",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = "${(clientes * 100).toInt()}%",
@@ -504,7 +512,7 @@ fun MetricasDeFlujo(
                     Text(
                         text = "Clientes / Visita",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = "${(visita * 100).toInt()}%",
@@ -515,25 +523,24 @@ fun MetricasDeFlujo(
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(12.dp)
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 Box(
                     modifier = Modifier
                         .weight(pesoClientes)
                         .fillMaxHeight()
-                        .background(Color(0xFF2196F3))
+                        .background(colorClientes)
                 )
                 Box(
                     modifier = Modifier
                         .weight(pesoVisita)
                         .fillMaxHeight()
-                        .background(Color(0xFFFF9800))
+                        .background(colorVisita)
                 )
             }
         }
@@ -543,7 +550,7 @@ fun MetricasDeFlujo(
 @Preview(showBackground = true)
 @Composable
 fun AdminDashboardPreview() {
-    MiRegistroTheme(darkTheme = false) {
+    MiRegistroTheme(darkTheme = true) {
         AdminDashboardContent(
             uiState = AdminDashboardUiState(
                 totalVisitas = 125,

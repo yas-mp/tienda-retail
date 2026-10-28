@@ -16,33 +16,29 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 private val EsquemaOscuro = darkColorScheme(
-    primary = CardOscura,
-    onPrimary = TextoClaro,
+    primary = TextoOscuro,
+    onPrimary = FondoAppOscuro,
     background = FondoAppOscuro,
     onBackground = TextoOscuro,
     surface = CardOscura,
-    onSurface = TextoClaro,
+    onSurface = TextoOscuro,
     surfaceVariant = CardOscura,
     onSurfaceVariant = TextoOscuro,
-    primaryContainer = ExitoFondo,
-    onPrimaryContainer = TextoClaro,
     error = ErrorColor,
-    outlineVariant = GrisDeshabilitada
+    onError = TextoClaro
 )
 
 private val EsquemaClaro = lightColorScheme(
     primary = FondoApp,
-    onPrimary = Color.White,
+    onPrimary = FondoAppClaro,
     background = FondoAppClaro,
-    onBackground = Color(0xFF1C2B2B),
+    onBackground = FondoApp,
     surface = CardClara,
-    onSurface = Color(0xFF1C2B2B),
-    surfaceVariant = FondoApp,
-    onSurfaceVariant = Color(0xFF5E6E6E),
-    primaryContainer = FondoAppClaro,
-    onPrimaryContainer = Color(0xFF1C2B2B),
+    onSurface = FondoApp,
+    surfaceVariant = CardClara,
+    onSurfaceVariant = FondoApp,
     error = ErrorColor,
-    outlineVariant = GrisDeshabilitada
+    onError = CardClara
 )
 private val Formas = Shapes(
     small = RoundedCornerShape(8.dp),

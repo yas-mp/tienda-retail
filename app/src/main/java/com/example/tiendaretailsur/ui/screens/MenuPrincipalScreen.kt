@@ -309,7 +309,7 @@ fun MenuPrincipalScreen(
                             shape = MaterialTheme.shapes.medium
                         ) {
                             Text(
-                                text = "Ver Panel Avanzado (Admin Dashboard)",
+                                text = "Ver Panel Avanzado",
                                 style = MaterialTheme.typography.titleMedium
                             )
                         }

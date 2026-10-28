@@ -91,7 +91,13 @@ fun PerfilScreen(
         ActivityResultContracts.TakePicturePreview()
     ) { bitmap: Bitmap? ->
         if (bitmap != null) {
-            val bytes = ConvertidorImagen.aBytes(bitmap)
+            val bitmapRotado = if (bitmap.width > bitmap.height) {
+                val matrix = android.graphics.Matrix().apply { postRotate(90f) }
+                Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+            } else {
+                bitmap
+            }
+            val bytes = ConvertidorImagen.aBytes(bitmapRotado)
             viewModel.setAvatarBytes(bytes)
         }
     }
@@ -116,8 +122,10 @@ fun PerfilScreen(
             try {
                 val inputStream = context.contentResolver.openInputStream(uri)
                 val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
                 if (bitmap != null) {
-                    val bytes = ConvertidorImagen.aBytes(bitmap)
+                    val bitmapOrientado = ConvertidorImagen.orientarBitmapDesdeUri(context, uri, bitmap)
+                    val bytes = ConvertidorImagen.aBytes(bitmapOrientado)
                     viewModel.setAvatarBytes(bytes)
                 }
             } catch (e: Exception) { }

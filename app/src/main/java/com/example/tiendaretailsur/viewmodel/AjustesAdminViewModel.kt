@@ -278,7 +278,6 @@ class AjustesAdminViewModel(
             }
         }
     }
-
     fun alternarEstadoAcceso(codigoAcceso: String, habilitado: Boolean) {
         val estadoTexto = if (habilitado) "operativo" else "cerrado por evento/mantención"
         try {

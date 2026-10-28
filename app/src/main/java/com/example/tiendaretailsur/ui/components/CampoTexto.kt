@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,30 +25,36 @@ import com.example.tiendaretailsur.ui.theme.MiRegistroTheme
 
 @Composable
 fun CampoTexto(
-    valor : String,
+    valor: String,
     onValorCambia: (String) -> Unit,
     etiqueta: String,
     @DrawableRes icono: Int? = null,
     modifier: Modifier = Modifier,
-    error : String? = null,
+    error: String? = null,
     tipoTeclado: KeyboardType = KeyboardType.Text
-){
+) {
     OutlinedTextField(
         value = valor,
         onValueChange = onValorCambia,
         modifier = modifier.fillMaxWidth(),
-        placeholder = {Text(text = etiqueta, color = Color.White.copy(0.5f))},
+        placeholder = {
+            Text(
+                text = etiqueta,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        },
         leadingIcon = {
-            if (icono!=null) {
+            if (icono != null) {
                 Icon(
                     painter = painterResource(icono),
                     contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(Dimens.tamanoIcono)
                 )
             }
         },
         isError = error != null,
-        supportingText = { if (error!= null) Text(error)},
+        supportingText = { if (error != null) Text(error) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = tipoTeclado,
@@ -61,31 +67,36 @@ fun CampoTexto(
 
 @Composable
 fun CampoTextoRut(
-    valor : String,
+    valor: String,
     onValorCambia: (String) -> Unit,
     etiqueta: String,
     @DrawableRes icono: Int? = null,
     modifier: Modifier = Modifier,
-    error : String? = null,
+    error: String? = null,
     tipoTeclado: KeyboardType = KeyboardType.Text
-){
+) {
     OutlinedTextField(
         value = valor,
         onValueChange = onValorCambia,
         modifier = modifier.fillMaxWidth(),
-        placeholder = {Text(text = etiqueta, color = Color.White.copy(0.5f))},
+        placeholder = {
+            Text(
+                text = etiqueta,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+            )
+        },
         leadingIcon = {
             if (icono != null) {
                 Icon(
                     painter = painterResource(icono),
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(Dimens.tamanoIcono)
                 )
             }
         },
         isError = error != null,
-        supportingText = { if (error!= null) Text(error)},
+        supportingText = { if (error != null) Text(error) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = tipoTeclado,
@@ -94,12 +105,11 @@ fun CampoTextoRut(
         shape = EstiloCampo.forma,
         colors = EstiloCampo.colores()
     )
-
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun CampoTextoPreview(){
+private fun CampoTextoPreview() {
     MiRegistroTheme {
         Box(
             modifier = Modifier

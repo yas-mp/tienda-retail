@@ -129,9 +129,9 @@ fun FormularioRegistroContent(
                     .background(color = MaterialTheme.colorScheme.background)
             ) {
                 Icon(
-                    painter = painterResource((R.drawable.atras)),
+                    painter = painterResource(R.drawable.atras),
                     contentDescription = "Volver",
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -144,7 +144,9 @@ fun FormularioRegistroContent(
 
             Text(
                 text = "RUT",
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(2.dp))
             CampoTextoRut(
@@ -158,7 +160,9 @@ fun FormularioRegistroContent(
 
             Text(
                 text = "Nombre completo",
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(2.dp))
             CampoTexto(
@@ -172,7 +176,9 @@ fun FormularioRegistroContent(
 
             Text(
                 text = "Teléfono",
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(2.dp))
             CampoTexto(
@@ -187,7 +193,9 @@ fun FormularioRegistroContent(
 
             Text(
                 text = "Correo electrónico",
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(2.dp))
             CampoTexto(
@@ -202,7 +210,9 @@ fun FormularioRegistroContent(
 
             Text(
                 text = "Contraseña",
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(2.dp))
             CampoContrasena(
@@ -218,31 +228,40 @@ fun FormularioRegistroContent(
             var preguntaAbierta by remember { mutableStateOf(false) }
             Text(
                 text = "Pregunta de seguridad",
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(2.dp))
 
-            Box(modifier = Modifier.fillMaxWidth()){
+            Box(modifier = Modifier.fillMaxWidth()) {
                 CampoTexto(
-                    valor = if (uiState.preguntaSeleccionada.isEmpty()) "Selecciona una pregunta" else uiState.preguntaSeleccionada,
+                    valor = uiState.preguntaSeleccionada,
                     onValorCambia = {},
-                    etiqueta = "Pregunta de seguridad",
+                    etiqueta = "Selecciona una pregunta",
                     icono = R.drawable.ic_persona,
                     error = uiState.errorPregunta
                 )
                 Box(
-                    modifier = Modifier.matchParentSize()
-                        .clickable {preguntaAbierta = true}
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clickable { preguntaAbierta = true }
                 )
                 DropdownMenu(
                     expanded = preguntaAbierta,
-                    onDismissRequest = { preguntaAbierta = false},
-                    modifier = Modifier.fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                    onDismissRequest = { preguntaAbierta = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
                     listaPreguntas.forEach { pregunta ->
                         DropdownMenuItem(
-                            text = {Text(text = pregunta)},
+                            text = {
+                                Text(
+                                    text = pregunta,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            },
                             onClick = {
                                 onPreguntaSeleccionada(pregunta)
                                 preguntaAbierta = false
@@ -255,7 +274,9 @@ fun FormularioRegistroContent(
 
             Text(
                 text = "Respuesta de seguridad",
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(2.dp))
             CampoTexto(
@@ -270,11 +291,13 @@ fun FormularioRegistroContent(
             var menuRolAbierto by remember { mutableStateOf(false) }
             Text(
                 text = "Selecciona el rol",
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(2.dp))
 
-            Box(modifier = Modifier.fillMaxWidth()){
+            Box(modifier = Modifier.fillMaxWidth()) {
                 CampoTexto(
                     valor = uiState.rolSeleccionado.name,
                     onValorCambia = {},
@@ -291,11 +314,16 @@ fun FormularioRegistroContent(
                     onDismissRequest = { menuRolAbierto = false },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
                     RolUsuario.entries.forEach { rol ->
                         DropdownMenuItem(
-                            text = { Text(text = rol.name) },
+                            text = {
+                                Text(
+                                    text = rol.name,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            },
                             onClick = {
                                 onSeleccionRol(rol)
                                 menuRolAbierto = false
@@ -335,6 +363,7 @@ fun FormularioRegistroContent(
 
             if (uiState.registroExitoso) {
                 AlertDialog(
+                    containerColor = MaterialTheme.colorScheme.surface,
                     onDismissRequest = {
                         onLimpiarFormulario()
                         onIrALoginClick()
@@ -343,11 +372,15 @@ fun FormularioRegistroContent(
                         Text(
                             text = "¡Registro Exitoso!",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     },
                     text = {
-                        Text("El colaborador ${uiState.nombre} ha sido registrado correctamente en el sistema.")
+                        Text(
+                            text = "El colaborador ${uiState.nombre} ha sido registrado correctamente en el sistema.",
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     },
                     confirmButton = {
                         Button(

@@ -122,14 +122,13 @@ fun FormularioConteoContent(
 
             HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
 
-            // Si la puerta se encuentra inhabilitada desde Admin, mostramos un mensaje destacado
             if (estaBloqueada) {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "⚠️ Este acceso se encuentra CERRADO por administración (mantención/evento). No se pueden enviar conteos.",
+                        text = "Este acceso se encuentra CERRADO por administración (mantención/evento). No se pueden enviar conteos.",
                         modifier = Modifier.padding(16.dp),
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         style = MaterialTheme.typography.bodyMedium,
@@ -138,7 +137,6 @@ fun FormularioConteoContent(
                 }
             }
 
-            // Tarjeta Contador: Tránsito
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -193,8 +191,6 @@ fun FormularioConteoContent(
                     }
                 }
             }
-
-            // Tarjeta Contador: Cliente
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -249,8 +245,6 @@ fun FormularioConteoContent(
                     }
                 }
             }
-
-            // Sección: Rango etario
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier.fillMaxWidth()
@@ -275,8 +269,6 @@ fun FormularioConteoContent(
                     }
                 }
             }
-
-            // Sección: Tipo compañía
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier.fillMaxWidth()
@@ -348,8 +340,6 @@ fun FormularioConteoContent(
             ) {
                 Text(text = "Enviar Registro de Aforo", style = MaterialTheme.typography.titleMedium)
             }
-
-            // Modal de error si se intenta registrar en un acceso cerrado
             if (estaBloqueada) {
                 AlertDialog(
                     onDismissRequest = onVolver,
@@ -375,7 +365,6 @@ fun FormularioConteoContent(
                     }
                 )
             }
-
             Spacer(modifier = Modifier.height(24.dp))
         }
     }

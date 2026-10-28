@@ -333,7 +333,6 @@ fun FormularioRegistroContent(
             }
             Spacer(modifier = Modifier.height(10.dp))
 
-            // ALERTA DE REGISTRO EXITOSO
             if (uiState.registroExitoso) {
                 AlertDialog(
                     onDismissRequest = {

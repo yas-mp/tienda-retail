@@ -289,10 +289,10 @@ class UsuarioDbHelper(context: Context)
         }
         return db.insert(TABLA_USUARIO, null, valores)
     }
-    fun obtenerPreguntaSeguridad(rutOCorreo: String) : String? {
+    fun obtenerPreguntaSeguridad(rutOCorreo: String): String? {
         val db = readableDatabase
         val sql = "SELECT $PREGUNTA_SEG FROM $TABLA_USUARIO WHERE $RUT_USUARIO = ? OR $CORREO_USUARIO = ?"
-        db.rawQuery(sql, arrayOf(rutOCorreo)).use { cursor ->
+        db.rawQuery(sql, arrayOf(rutOCorreo, rutOCorreo)).use { cursor ->
             if (cursor.moveToFirst()) {
                 return cursor.getString(cursor.getColumnIndexOrThrow(PREGUNTA_SEG))
             }

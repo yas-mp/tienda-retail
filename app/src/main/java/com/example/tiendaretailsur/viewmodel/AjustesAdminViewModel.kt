@@ -48,7 +48,7 @@ class AjustesAdminViewModel(
                 nombre = puerta.nombre,
                 ubicacion = puerta.descripcion,
                 descripcion = puerta.descripcion,
-                habilitado = puerta.estaHabilitado, // <-- Usar 'habilitado' con 'o'
+                habilitado = puerta.estaHabilitado,
                 modoOfflinePrioritario = false
             )
         }
@@ -289,7 +289,7 @@ class AjustesAdminViewModel(
         _uiState.update { estadoActual ->
             val accesosActualizados = estadoActual.accesos.map { acceso ->
                 if (acceso.codigo == codigoAcceso) {
-                    acceso.copy(habilitado = habilitado) // <-- 'habilitado' con 'o'
+                    acceso.copy(habilitado = habilitado)
                 } else {
                     acceso
                 }

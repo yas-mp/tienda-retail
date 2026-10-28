@@ -110,7 +110,7 @@ fun MenuPrincipalScreen(
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
                 NavigationDrawerItem(
-                    label = { Text("Mi Perfil (Editar Foto)") },
+                    label = { Text("Mi Perfil") },
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     selected = false,
                     onClick = {
@@ -187,7 +187,7 @@ fun MenuPrincipalScreen(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = "Resumen Global (4 Puertas de Acceso)",
+                                    text = "Resumen Global",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )

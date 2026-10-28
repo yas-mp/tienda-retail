@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class UsuarioViewModel : ViewModel() {
-
     private val _usuarios = MutableStateFlow(
         listOf(
             Usuario(
@@ -25,7 +24,6 @@ class UsuarioViewModel : ViewModel() {
         )
     )
     val usuarios: StateFlow<List<Usuario>> = _usuarios.asStateFlow()
-
     private val _usuarioActual = MutableStateFlow<Usuario?>(null)
     val usuarioActual: StateFlow<Usuario?> = _usuarioActual.asStateFlow()
 

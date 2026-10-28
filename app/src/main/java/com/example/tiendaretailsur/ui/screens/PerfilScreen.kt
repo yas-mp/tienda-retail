@@ -141,7 +141,7 @@ fun PerfilScreen(
                 title = { Text(if (isAdmin) "Perfil de Administrador" else "Perfil de Colaborador") },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
-                        Icon(painter = painterResource(R.drawable.ic_flecha), contentDescription = "Volver")
+                        Icon(painter = painterResource(R.drawable.atras), contentDescription = "Volver")
                     }
                 }
             )
@@ -157,7 +157,6 @@ fun PerfilScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Avatar Circular
             AvatarCircular(
                 imagen = R.drawable.ic_persona,
                 descripcion = "Avatar de usuario",

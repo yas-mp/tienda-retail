@@ -14,5 +14,5 @@ data class ConfiguracionAcceso(
     val ubicacion: String = "",
     val descripcion: String = "",
     val habilitado: Boolean = true,
-    val modoOfflinePrioritario: Boolean = false
+    val modoOfflinePrioritario: Boolean
 )

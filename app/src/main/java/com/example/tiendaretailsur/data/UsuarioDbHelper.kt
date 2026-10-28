@@ -11,7 +11,6 @@ import com.example.tiendaretailsur.model.DatoGrafico
 import com.example.tiendaretailsur.model.FormularioConteoUiState
 import com.example.tiendaretailsur.model.FormularioRegistroUiState
 import com.example.tiendaretailsur.model.HashUtils
-import com.example.tiendaretailsur.model.RolUsuario
 import com.example.tiendaretailsur.model.Usuario
 
 class UsuarioDbHelper(context: Context)
@@ -19,7 +18,7 @@ class UsuarioDbHelper(context: Context)
 
     companion object {
         private const val NOMBRE_BD = "tiendaretailsur.db"
-        private const val VERSION_DB = 9
+        private const val VERSION_DB = 11
 
         private const val TABLA_ROLES = "roles"
         private const val ID_ROL = "id_rol"
@@ -45,6 +44,7 @@ class UsuarioDbHelper(context: Context)
         private const val ID_PUERTA = "id_puerta"
         private const val NOMBRE_PUERTA = "nombre_puerta"
         private const val DESCRIPCION_PUERTA = "descripcion_puerta"
+        private const val HABILITADA_PUERTA = "habilitada"
 
         private const val TABLA_CONTEO = "formulario_conteo"
         private const val ID_CONTEO = "id_conteo"
@@ -68,7 +68,8 @@ class UsuarioDbHelper(context: Context)
             "CREATE TABLE $TABLA_PUERTAS (" +
                     "$ID_PUERTA TEXT PRIMARY KEY, " +
                     "$NOMBRE_PUERTA TEXT NOT NULL, " +
-                    "$DESCRIPCION_PUERTA TEXT NOT NULL)"
+                    "$DESCRIPCION_PUERTA TEXT NOT NULL, " +
+                    "$HABILITADA_PUERTA INTEGER NOT NULL DEFAULT 1)"
 
         private const val SQL_CREAR_USUARIOS =
             "CREATE TABLE $TABLA_USUARIO (" +
@@ -116,13 +117,12 @@ class UsuarioDbHelper(context: Context)
                     "('19222333-4', 'Mateo Silva', 'm.silva@rincondelsur.cl', '955667788', '$claveHash', 'Turno Diurno', '¿Mascota?', '$respGatoHash', 2), " +
                     "('17333444-5', 'Valentina Rojas', 'v.rojas@rincondelsur.cl', '999887766', '$claveHash', 'Turno Vespertino', '¿Mascota?', '$respPerroHash', 2)"
         }
-
         private const val SQL_PRECARGAR_PUERTAS =
-            "INSERT INTO $TABLA_PUERTAS ($ID_PUERTA, $NOMBRE_PUERTA, $DESCRIPCION_PUERTA) VALUES " +
-                    "('A1', 'Acceso Principal', 'Patio de comidas del mall / Pasillo central'), " +
-                    "('A2', 'Acceso Lateral', 'Pasillo del mall, lado norte'), " +
-                    "('A3', 'Acceso Estacionamiento', 'Estacionamiento subterráneo (señal de red débil)'), " +
-                    "('A4', 'Acceso Conexión', 'Conexión directa con tienda vecina de mejoramiento del hogar')"
+            "INSERT INTO $TABLA_PUERTAS ($ID_PUERTA, $NOMBRE_PUERTA, $DESCRIPCION_PUERTA, $HABILITADA_PUERTA) VALUES " +
+                    "('A1', 'Acceso Principal', 'Patio de comidas del mall / Pasillo central', 1), " +
+                    "('A2', 'Acceso Lateral', 'Pasillo del mall, lado norte', 1), " +
+                    "('A3', 'Acceso Estacionamiento', 'Estacionamiento subterráneo (señal de red débil)', 1), " +
+                    "('A4', 'Acceso Conexión', 'Conexión directa con tienda vecina de mejoramiento del hogar', 1)"
 
         private const val SQL_PRECARGAR_CONTEOS =
             "INSERT INTO $TABLA_CONTEO (" +
@@ -166,7 +166,7 @@ class UsuarioDbHelper(context: Context)
             db.execSQL(SQL_CREAR_PUERTAS)
             db.execSQL(SQL_PRECARGAR_PUERTAS)
         }
-        if (oldVersion < 9) {
+        if (oldVersion < 11) {
             db.execSQL("DROP TABLE IF EXISTS $TABLA_CONTEO")
             db.execSQL("DROP TABLE IF EXISTS $TABLA_USUARIO")
             db.execSQL("DROP TABLE IF EXISTS $TABLA_PUERTAS")
@@ -203,23 +203,30 @@ class UsuarioDbHelper(context: Context)
             arrayOf(rut)
         )
     }
-
-
     fun listarPuertas(): List<AccesoTienda> {
         val lista = mutableListOf<AccesoTienda>()
         val sql = "SELECT * FROM $TABLA_PUERTAS ORDER BY $ID_PUERTA ASC"
         readableDatabase.rawQuery(sql, null).use { cursor ->
             while (cursor.moveToNext()) {
+                val estaHabilitada = cursor.getInt(cursor.getColumnIndexOrThrow(HABILITADA_PUERTA)) == 1
                 lista.add(
                     AccesoTienda(
                         id = cursor.getString(cursor.getColumnIndexOrThrow(ID_PUERTA)),
                         nombre = cursor.getString(cursor.getColumnIndexOrThrow(NOMBRE_PUERTA)),
-                        descripcion = cursor.getString(cursor.getColumnIndexOrThrow(DESCRIPCION_PUERTA))
+                        descripcion = cursor.getString(cursor.getColumnIndexOrThrow(DESCRIPCION_PUERTA)),
+                        estaHabilitado = estaHabilitada // <-- Se lee el estado real guardado
                     )
                 )
             }
         }
         return lista
+    }
+    fun actualizarEstadoPuerta(idPuerta: String, habilitada: Boolean) {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(HABILITADA_PUERTA, if (habilitada) 1 else 0)
+        }
+        db.update(TABLA_PUERTAS, values, "$ID_PUERTA = ?", arrayOf(idPuerta))
     }
     fun listarPerfiles(): List<ConfiguracionPerfil> {
         val lista = mutableListOf<ConfiguracionPerfil>()
@@ -241,16 +248,6 @@ class UsuarioDbHelper(context: Context)
             }
         }
         return lista
-    }
-
-    fun actualizarAvatar(id: Long, avatar: ByteArray): Int {
-        val valores = ContentValues().apply { put(AVATAR_USUARIO, avatar) }
-        return writableDatabase.update(
-            TABLA_USUARIO,
-            valores,
-            "$ID_USUARIO =?",
-            arrayOf(id.toString())
-        )
     }
 
     fun actualizarAvatarPorCorreo(correo: String, avatar: ByteArray): Int {
@@ -327,22 +324,6 @@ class UsuarioDbHelper(context: Context)
         )
     }
 
-    fun obtenerDatosGrafico() : Map<String, Int> {
-        val datosGrafico = mutableMapOf<String, Int>()
-
-        val sql = "SELECT $PUERTA_ACCESO, SUM($CANT_CLIENTES) AS total_clientes " +
-                "FROM $TABLA_CONTEO " +
-                "GROUP BY $PUERTA_ACCESO"
-
-        readableDatabase.rawQuery(sql, null).use { cursor ->
-            while (cursor.moveToNext()) {
-                val etiqueta = cursor.getString(cursor.getColumnIndexOrThrow(PUERTA_ACCESO))
-                val total = cursor.getInt(cursor.getColumnIndexOrThrow("total_clientes"))
-                datosGrafico[etiqueta] = total
-            }
-        }
-        return datosGrafico
-    }
     fun obtenerFlujoPorHora() : List<DatoGrafico> {
         val lista = mutableListOf<DatoGrafico>()
         val sql = "SELECT $HORA, SUM($CANT_CLIENTES) AS total " +
@@ -443,14 +424,6 @@ class UsuarioDbHelper(context: Context)
             }
         }
         return lista
-    }
-
-    fun historialConteo() : List<FormularioConteoUiState>{
-        return listarConteos()
-    }
-
-    fun listarRoles() : List<RolUsuario>{
-        return RolUsuario.obtenerListaRoles()
     }
 
     fun autenticarUsuario(correo: String, contrasena: String): Usuario? {

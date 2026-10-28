@@ -3,7 +3,8 @@ package com.example.tiendaretailsur.model
 data class AccesoTienda(
     val id: String,
     val nombre: String,
-    val descripcion: String
+    val descripcion: String,
+    val estaHabilitado: Boolean = true
 )
 
 data class ResumenDiario(

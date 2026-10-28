@@ -75,7 +75,6 @@ fun LoginScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    //  Navegación automática tan pronto el login sea exitoso
     LaunchedEffect(uiState.loginExitoso, uiState.usuarioAutenticado) {
         if (uiState.loginExitoso && uiState.usuarioAutenticado != null) {
             onLoginSuccess(uiState.usuarioAutenticado!!)
@@ -121,7 +120,6 @@ fun LoginContent(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.Start
         ) {
-            // Encabezado: Icono en recuadro + "Aforo"
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -151,7 +149,6 @@ fun LoginContent(
 
             Spacer(modifier = Modifier.height(Dimens.espacioGrande))
 
-            // Tarjeta Superior ("CADA ACCESO CUENTA")
             Card(
                 shape = formas.large,
                 colors = CardDefaults.cardColors(containerColor = colores.surface),
@@ -210,7 +207,6 @@ fun LoginContent(
 
             Spacer(modifier = Modifier.height(Dimens.espacioGrande))
 
-            // Saludo y Descripción
             Text(
                 text = stringResource(id = R.string.login_saludo),
                 style = tipografia.titleLarge.copy(fontSize = 30.sp, lineHeight = 36.sp),
@@ -225,7 +221,6 @@ fun LoginContent(
 
             Spacer(modifier = Modifier.height(Dimens.espacioGrande))
 
-            // Campo Correo Electrónico o RUT
             Text(
                 text = stringResource(id = R.string.login_label_correo),
                 style = tipografia.labelLarge,

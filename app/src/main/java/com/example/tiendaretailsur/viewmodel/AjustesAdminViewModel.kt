@@ -47,7 +47,9 @@ class AjustesAdminViewModel(
                 codigo = puerta.id,
                 nombre = puerta.nombre,
                 ubicacion = puerta.descripcion,
-                habilitado = true
+                descripcion = puerta.descripcion,
+                habilitado = puerta.estaHabilitado, // <-- Usar 'habilitado' con 'o'
+                modoOfflinePrioritario = false
             )
         }
 
@@ -76,6 +78,7 @@ class AjustesAdminViewModel(
     fun limpiarMensaje() {
         _uiState.update { it.copy(mensajeConfirmacion = null) }
     }
+
     fun alternarEstadoUsuario(usuario: Usuario, nuevoEstado: Boolean) {
         val estadoTexto = if (nuevoEstado) "habilitado" else "deshabilitado"
 
@@ -93,6 +96,7 @@ class AjustesAdminViewModel(
             )
         }
     }
+
     fun abrirEditorUsuario(usuario: Usuario) {
         _uiState.update {
             it.copy(
@@ -194,6 +198,7 @@ class AjustesAdminViewModel(
             )
         }
     }
+
     fun alternarEstadoPerfil(perfil: ConfiguracionPerfil, habilitado: Boolean) {
         val textoEstado = if (habilitado) "habilitado" else "deshabilitado"
         _uiState.update { estadoActual ->
@@ -255,8 +260,6 @@ class AjustesAdminViewModel(
             )
         }
     }
-
-    // Ajustes de Tienda
     fun onMetaConversionCambia(valor: String) {
         _uiState.update { it.copy(metaConversionTexto = valor) }
     }
@@ -278,10 +281,15 @@ class AjustesAdminViewModel(
 
     fun alternarEstadoAcceso(codigoAcceso: String, habilitado: Boolean) {
         val estadoTexto = if (habilitado) "operativo" else "cerrado por evento/mantención"
+        try {
+            dbHelper.actualizarEstadoPuerta(codigoAcceso, habilitado)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         _uiState.update { estadoActual ->
             val accesosActualizados = estadoActual.accesos.map { acceso ->
                 if (acceso.codigo == codigoAcceso) {
-                    acceso.copy(habilitado = habilitado)
+                    acceso.copy(habilitado = habilitado) // <-- 'habilitado' con 'o'
                 } else {
                     acceso
                 }

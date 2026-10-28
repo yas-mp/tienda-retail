@@ -44,14 +44,17 @@ fun FormularioConteoScreen(
     viewModel: FormularioConteoViewModel = viewModel(),
     onVolver: () -> Unit = {}
 ) {
+    // Al entrar o cambiar la puerta inicial, validamos y configuramos el estado
     LaunchedEffect(puertaInicial) {
         viewModel.setPuerta(puertaInicial)
     }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val estaPuertaBloqueada = viewModel.estaPuertaActualBloqueada()
 
     FormularioConteoContent(
         uiState = uiState,
+        estaBloqueada = estaPuertaBloqueada,
         modifier = modifier,
         onIncrementarTransito = viewModel::incrementarTransito,
         onDecrementarTransito = viewModel::decrementarTransito,
@@ -69,6 +72,7 @@ fun FormularioConteoScreen(
 @Composable
 fun FormularioConteoContent(
     uiState: FormularioConteoUiState,
+    estaBloqueada: Boolean = false,
     modifier: Modifier = Modifier,
     onIncrementarTransito: () -> Unit,
     onDecrementarTransito: () -> Unit,
@@ -91,7 +95,7 @@ fun FormularioConteoContent(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Encabezado con botón de volver
+            // Encabezado
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -111,14 +115,30 @@ fun FormularioConteoContent(
                     Text(
                         text = "Puerta Activa: ${uiState.puertaAcceso}",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        color = if (estaBloqueada) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                     )
                 }
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f))
 
-            // Tarjeta Contador: Transito (solo atajo)
+            // Si la puerta se encuentra inhabilitada desde Admin, mostramos un mensaje destacado
+            if (estaBloqueada) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "⚠️ Este acceso se encuentra CERRADO por administración (mantención/evento). No se pueden enviar conteos.",
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            // Tarjeta Contador: Tránsito
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -158,12 +178,14 @@ fun FormularioConteoContent(
                     ) {
                         OutlinedButton(
                             onClick = onDecrementarTransito,
+                            enabled = !estaBloqueada,
                             modifier = Modifier.weight(1f)
                         ) {
                             Text("Restar (-1)")
                         }
                         Button(
                             onClick = onIncrementarTransito,
+                            enabled = !estaBloqueada,
                             modifier = Modifier.weight(1f)
                         ) {
                             Text("Sumar (+1)")
@@ -172,7 +194,7 @@ fun FormularioConteoContent(
                 }
             }
 
-            // Tarjeta Contador: Cliente (comprar)
+            // Tarjeta Contador: Cliente
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -212,12 +234,14 @@ fun FormularioConteoContent(
                     ) {
                         OutlinedButton(
                             onClick = onDecrementarClientes,
+                            enabled = !estaBloqueada,
                             modifier = Modifier.weight(1f)
                         ) {
                             Text("Restar (-1)")
                         }
                         Button(
                             onClick = onIncrementarClientes,
+                            enabled = !estaBloqueada,
                             modifier = Modifier.weight(1f)
                         ) {
                             Text("Sumar (+1)")
@@ -226,7 +250,7 @@ fun FormularioConteoContent(
                 }
             }
 
-            // Seccioon: Rango etario
+            // Sección: Rango etario
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier.fillMaxWidth()
@@ -242,6 +266,7 @@ fun FormularioConteoContent(
                     ) {
                         listOf("18–25", "26–40", "41–60", "61+").forEach { rango ->
                             FilterChip(
+                                enabled = !estaBloqueada,
                                 selected = uiState.rangoEtario == rango,
                                 onClick = { onSeleccionarEdad(rango) },
                                 label = { Text(rango) }
@@ -251,7 +276,7 @@ fun FormularioConteoContent(
                 }
             }
 
-            // Secciin: Tipo compañía
+            // Sección: Tipo compañía
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 modifier = Modifier.fillMaxWidth()
@@ -271,6 +296,7 @@ fun FormularioConteoContent(
                         ) {
                             listOf("Solo", "Pareja").forEach { comp ->
                                 FilterChip(
+                                    enabled = !estaBloqueada,
                                     modifier = Modifier.weight(1f),
                                     selected = uiState.compania == comp,
                                     onClick = { onSeleccionarCompania(comp) },
@@ -291,6 +317,7 @@ fun FormularioConteoContent(
                         ) {
                             listOf("Con niños", "Grupo").forEach { comp ->
                                 FilterChip(
+                                    enabled = !estaBloqueada,
                                     modifier = Modifier.weight(1f),
                                     selected = uiState.compania == comp,
                                     onClick = { onSeleccionarCompania(comp) },
@@ -313,12 +340,27 @@ fun FormularioConteoContent(
 
             Button(
                 onClick = onEnviar,
+                enabled = !estaBloqueada,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = MaterialTheme.shapes.medium
             ) {
                 Text(text = "Enviar Registro de Aforo", style = MaterialTheme.typography.titleMedium)
+            }
+
+            // Modal de error si se intenta registrar en un acceso cerrado
+            if (estaBloqueada) {
+                AlertDialog(
+                    onDismissRequest = onVolver,
+                    title = { Text("Acceso Inhabilitado") },
+                    text = { Text("La puerta ${uiState.puertaAcceso} ha sido cerrada temporalmente por administración. Por favor selecciona otra puerta.") },
+                    confirmButton = {
+                        Button(onClick = onVolver) {
+                            Text("Volver a la Lista")
+                        }
+                    }
+                )
             }
 
             if (uiState.envioExitoso) {
@@ -335,46 +377,6 @@ fun FormularioConteoContent(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-        }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, name = "Formulario Conteo - Oscuro")
-@Composable
-private fun FormularioConteoPreview() {
-    MiRegistroTheme(darkTheme = true) {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            FormularioConteoContent(
-                uiState = FormularioConteoUiState(puertaAcceso = "A2", cantidadTransito = 15, cantidadClientes = 8),
-                onIncrementarTransito = {},
-                onDecrementarTransito = {},
-                onIncrementarClientes = {},
-                onDecrementarClientes = {},
-                onSeleccionarEdad = {},
-                onSeleccionarCompania = {},
-                onEnviar = {},
-                onVolver = {}
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true, name = "Formulario Conteo - Claro")
-@Composable
-private fun FormularioConteoClaroPreview() {
-    MiRegistroTheme(darkTheme = false) {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            FormularioConteoContent(
-                uiState = FormularioConteoUiState(puertaAcceso = "A2", cantidadTransito = 15, cantidadClientes = 8),
-                onIncrementarTransito = {},
-                onDecrementarTransito = {},
-                onIncrementarClientes = {},
-                onDecrementarClientes = {},
-                onSeleccionarEdad = {},
-                onSeleccionarCompania = {},
-                onEnviar = {},
-                onVolver = {}
-            )
         }
     }
 }

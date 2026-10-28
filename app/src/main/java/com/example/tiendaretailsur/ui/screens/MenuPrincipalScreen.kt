@@ -187,7 +187,7 @@ fun MenuPrincipalScreen(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 Text(
-                                    text = "Resumen Global (4 Puertas de Acceso)",
+                                    text = "Resumen Global",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -305,13 +305,19 @@ fun MenuPrincipalScreen(
                             onClick = onIrAdminDashboard,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(50.dp),
+                                .height(52.dp),
                             shape = MaterialTheme.shapes.medium
                         ) {
-                            Text(
-                                text = "Ver Panel Avanzado (Admin Dashboard)",
-                                style = MaterialTheme.typography.titleMedium
-                            )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(imageVector = Icons.Default.Store, contentDescription = null)
+                                Text(
+                                    text = "Ver Panel Avanzado",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                     }

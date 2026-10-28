@@ -3,15 +3,12 @@ package com.example.tiendaretailsur.ui.theme
 import androidx.compose.ui.unit.dp
 
 object Dimens {
-
-        //espaciados (margin / padding / gap)
         val margenPantalla = 16.dp
         val espacioEntreTarjetas = 12.dp
         val espacioPantalla = 30.dp
         val espacioInterno = 8.dp
         val espacioPequeno = 4.dp
 
-        //espaciados (margin / padding / gap) --> Login
         val espacioGrande = 24.dp
         val espacioMedio = 16.dp
         val espacioChico = 8.dp

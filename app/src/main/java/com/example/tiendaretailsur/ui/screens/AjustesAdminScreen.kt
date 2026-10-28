@@ -129,7 +129,6 @@ fun AjustesAdminScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Pestañas superiores
             TabRow(
                 selectedTabIndex = uiState.seccionActual.ordinal,
                 containerColor = MaterialTheme.colorScheme.surface
@@ -148,8 +147,6 @@ fun AjustesAdminScreen(
                     )
                 }
             }
-
-            // Banner de confirmación cuando se guarda un ajuste
             uiState.mensajeConfirmacion?.let { mensaje ->
                 Card(
                     modifier = Modifier
@@ -185,8 +182,6 @@ fun AjustesAdminScreen(
                     }
                 }
             }
-
-            // Contenido según la pestaña activa
             when (uiState.seccionActual) {
                 SeccionAjustesAdmin.COLABORADORES -> {
                     SeccionColaboradoresContent(
@@ -218,8 +213,6 @@ fun AjustesAdminScreen(
                 }
             }
         }
-
-        // Modal de edición de colaborador
         if (uiState.usuarioEnEdicion != null) {
             DialogoEditarUsuario(
                 uiState = uiState,
@@ -235,8 +228,6 @@ fun AjustesAdminScreen(
                 onGuardar = viewModel::guardarCambiosUsuario
             )
         }
-
-        // Modal de edición de perfil de la app
         if (uiState.perfilEnEdicion != null) {
             DialogoEditarPerfil(
                 uiState = uiState,
@@ -279,7 +270,6 @@ private fun SeccionColaboradoresContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Resumen rápido de cuentas
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -300,8 +290,6 @@ private fun SeccionColaboradoresContent(
                 modifier = Modifier.weight(1f)
             )
         }
-
-        // Buscador por nombre, correo o RUT
         OutlinedTextField(
             value = uiState.busqueda,
             onValueChange = onBusquedaCambia,
@@ -312,7 +300,6 @@ private fun SeccionColaboradoresContent(
             shape = RoundedCornerShape(12.dp)
         )
 
-        // Filtros por perfil
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -328,8 +315,6 @@ private fun SeccionColaboradoresContent(
                 )
             }
         }
-
-        // Botón Registrar Nuevo Colaborador
         Button(
             onClick = onIrARegistroColaborador,
             modifier = Modifier
@@ -341,8 +326,6 @@ private fun SeccionColaboradoresContent(
             Spacer(modifier = Modifier.width(8.dp))
             Text("Registrar Nuevo Colaborador", fontWeight = FontWeight.Bold)
         }
-
-        // Lista de tarjetas de colaboradores
         usuariosFiltrados.forEach { usuario ->
             val perfilHabilitado = uiState.perfiles.find { it.nombre == usuario.perfil || it.codigo == usuario.perfil }?.habilitado ?: true
             TarjetaColaboradorItem(
@@ -618,7 +601,6 @@ private fun SeccionTiendaYCuentaContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Tarjeta de Mi Perfil de Administrador
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -661,8 +643,6 @@ private fun SeccionTiendaYCuentaContent(
                 }
             }
         }
-
-        // Meta mensual de conversión
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)

@@ -16,7 +16,6 @@ data class AjustesAdminUiState(
     val accesos: List<ConfiguracionAcceso> = emptyList(),
     val metaConversionTexto: String = "10.0",
 
-    // Estado del modal de edición de colaborador
     val usuarioEnEdicion: Usuario? = null,
     val editNombre: String = "",
     val editRut: String = "",
@@ -28,7 +27,6 @@ data class AjustesAdminUiState(
     val editNuevaContrasena: String = "",
     val errorEdicionUsuario: String? = null,
 
-    // Estado del modal de edición de perfil de la app (P-01 a P-04)
     val perfilEnEdicion: ConfiguracionPerfil? = null,
     val editPerfilNombre: String = "",
     val editPerfilDescripcion: String = "",

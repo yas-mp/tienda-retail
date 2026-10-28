@@ -109,7 +109,8 @@ fun AdminDashboardContent(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(drawerContainerColor = MaterialTheme.colorScheme.surface
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -243,9 +244,9 @@ fun AdminDashboardContent(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.historial),
-                        contentDescription = null, // O "Ícono historial" si requiere descripción
+                        contentDescription = null, //
                         tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(20.dp) // Ajusta el tamaño según lo necesites
+                        modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
@@ -444,7 +445,6 @@ fun MetricasDeFlujo(
     clientes: Float = 0.54f,
     visita: Float = 0.46f
 ) {
-    // Garantizamos que los pesos sean siempre estrictamente mayores a 0
     val pesoClientes = clientes.coerceAtLeast(0.01f)
     val pesoVisita = visita.coerceAtLeast(0.01f)
 
